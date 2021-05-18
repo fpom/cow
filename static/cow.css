@@ -1,0 +1,42 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.CodeMirror {
+    border: 1px solid #ddd;
+    height: 100%;
+}
+
+.wrap {
+    position: relative;
+     height: 100%;
+     background: #eee;
+     padding: 10px;
+     box-sizing: border-box;
+}
+
+.button-bar {
+    float: left;
+    padding-right: 10px;
+}
+
+.button-bar a {
+    display: block;
+    margin: 2px;
+    margin-bottom: 8px;
+    border: 1px solid #000;
+}
+
+.button-bar a {
+    text-decoration: none;
+    line-height: 0;
+}
+
+.button-bar a img {
+    padding: 4px;
+}
+.button-bar a :hover {
+    background: #aaa;
+}

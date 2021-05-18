@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>COW</title>
+    <meta charset="utf-8">
+    <!-- codemirror -->
+    <link rel="stylesheet" href="static/cm/lib/codemirror.css">
+    <script src="static/cm/lib/codemirror.js"></script>
+    <script src="static/cm/addon/edit/matchbrackets.js"></script>
+    <script src="static/cm/addon/selection/active-line.js"></script>
+    <script src="static/cm/mode/clike/clike.js"></script>
+    <!-- JQuery -->
+    <script src="static/jquery.js"></script>
+    <script src="static/jquery.base64.js"></script>
+    <!-- custom -->
+    <link rel="stylesheet" href="static/cow.css" rel="stylesheet">
+    <script src="static/cow.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="button-bar">
+        <a href="#" id="run">
+          <img src="static/img/run.png" alt="run" title="Compile and run">
+        </a>
+        <a href="#" download="main.c" id="download">
+          <img src="static/img/dl.png" alt="download" title="Download source code">
+        </a>
+        <a href="https://github.com/fpom/cow" target="_blank">
+          <img src="static/img/about.png" alt="about" title="About COW">
+        </a>
+      </div>
+      <textarea id="cow"></textarea>
+    </div>
+  </body>
+</html>
