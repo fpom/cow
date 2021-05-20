@@ -8,5 +8,15 @@ def index () :
 
 @app.route("/run", methods=["POST"])
 def run () :
-    print(request.form)
-    return {"link" : "http://www.google.com"}
+    try :
+        source = dict(request.form)
+        print(source)
+        return {"status" : "OK",
+                "link" : "http://www.google.com"}
+    except Exception as err :
+        if app.config["ENV"] == "development" :
+            name = err.__class__.__name__
+            return {"status" : f"server raised<br/><tt>{name}: {err}</tt>"}
+        else :
+            return {"status" : "internal server error"}
+

@@ -203,14 +203,30 @@
     },
     on_done: function(resp) {
       var win;
-      win = window.open(resp.link, "_blank");
-      if (win != null) {
-        return win.focus();
-      } else {
-        return alert("You should allow popups for this site");
+      if (resp.status === "OK") {
+        win = window.open(resp.link, "_blank");
+        if (win != null) {
+          win.focus();
+          return;
+        }
+        resp.status = "Your browser has blocked a popup.<br/>You should allow popups for this site";
       }
+      $("#run-message").html(resp.status);
+      return run.dialog.dialog("open");
     },
     init: function() {
+      run.dialog = $("#run-dialog-message").dialog({
+        autoOpen: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+          OK: function() {
+            return run.dialog.dialog("close");
+          }
+        }
+      });
       return $("#run").on("click", run.on_click);
     }
   };

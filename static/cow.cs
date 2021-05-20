@@ -148,12 +148,25 @@ run =
             source[filename] = codemirror.getValue()
         $.post("/run", source).done(run.on_done)
     on_done : (resp) ->
-        win = window.open(resp.link, "_blank")
-        if win?
-            win.focus()
-        else
-            alert("You should allow popups for this site")
+        if resp.status == "OK"
+            win = window.open(resp.link, "_blank")
+            if win?
+                win.focus()
+                return
+            resp.status = "Your browser has blocked a popup.<br/>\
+                You should allow popups for this site"
+        $("#run-message").html(resp.status)
+        run.dialog.dialog("open")
     init : () ->
+        run.dialog = $("#run-dialog-message").dialog
+            autoOpen : false
+            resizable : false
+            height : "auto"
+            width : 400
+            modal : true
+            buttons :
+                OK : () ->
+                  run.dialog.dialog("close")
         $("#run").on("click", run.on_click)
 
 $ ->
