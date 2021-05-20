@@ -8,5 +8,5 @@ def index () :
 
 @app.route("/run", methods=["POST"])
 def run () :
-    source = request.form["source"]
+    print(request.form)
     return {"link" : "http://www.google.com"}

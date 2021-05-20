@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>COW</title>
+    <title>CoW</title>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="/static/favicon.png">
     <!-- codemirror -->
     <link rel="stylesheet" href="static/cm/lib/codemirror.css">
     <script src="static/cm/lib/codemirror.js"></script>
@@ -10,26 +11,61 @@
     <script src="static/cm/addon/selection/active-line.js"></script>
     <script src="static/cm/mode/clike/clike.js"></script>
     <!-- JQuery -->
-    <script src="static/jquery.js"></script>
+    <link rel="stylesheet" href="static/jqui/jquery-ui.min.css">
+    <script src="static/jquery.min.js"></script>
     <script src="static/jquery.base64.js"></script>
+    <script src="static/jqui/jquery-ui.min.js"></script>
     <!-- custom -->
     <link rel="stylesheet" href="static/cow.css" rel="stylesheet">
     <script src="static/cow.js"></script>
   </head>
   <body>
+    <div id="rename-dialog-form" title="Rename file">
+      <form>
+        <fieldset>
+          <label for="rename-field">new name</label>
+          <input type="text" id="rename-field" class="text ui-widget-content ui-corner-all">
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+    <div id="create-dialog-form" title="Create file">
+      <form>
+        <fieldset>
+          <label for="create-field">file name</label>
+          <input type="text" id="create-field" class="text ui-widget-content ui-corner-all">
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+    <div id="remove-dialog-confirm" title="Remove file?">
+      <p>Removing file cannot be undone. Are you sure?</p>
+    </div>
     <div class="wrap">
       <div class="button-bar">
-        <a href="#" id="run">
+        <a class="ui-button ui-widget ui-corner-all" href="#" id="new">
+          <img src="static/img/new.png" alt="new" title="Add file">
+        </a>
+        <a class="ui-button ui-widget ui-corner-all" href="#" id="rename">
+          <img src="static/img/rename.png" alt="new" title="Rename file">
+        </a>
+        <a class="ui-button ui-widget ui-corner-all" href="#" id="remove">
+          <img src="static/img/remove.png" alt="remove" title="Remove file">
+        </a>
+        <a class="ui-button ui-widget ui-corner-all" href="#" id="download">
+          <img src="static/img/download.png" alt="download" title="Download file">
+        </a>
+        <a class="ui-button ui-widget ui-corner-all" href="#" id="run">
           <img src="static/img/run.png" alt="run" title="Compile and run">
         </a>
-        <a href="#" download="main.c" id="download">
-          <img src="static/img/dl.png" alt="download" title="Download source code">
-        </a>
-        <a href="https://github.com/fpom/cow" target="_blank">
-          <img src="static/img/about.png" alt="about" title="About COW">
+        <a class="ui-button ui-widget ui-corner-all" href="https://github.com/fpom/cow" target="_blank">
+          <img src="static/favicon.png" height="32px" width="32px" alt="about" title="About CoW">
         </a>
       </div>
-      <textarea id="cow"></textarea>
+      <div id="tabs" class="tabs">
+        <ul>
+        </ul>
+      </div>
     </div>
   </body>
 </html>
