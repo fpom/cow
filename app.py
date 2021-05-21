@@ -111,13 +111,15 @@ class CoWrun (Thread) :
                              stdout=PIPE, stderr=STDOUT, cwd=tmp,
                              encoding="utf-8", errors="replace")
             for line in self.sub.stdout :
-                if match := self._ttyd_line.match(line.strip()) :
+                match = self._ttyd_line.match(line.strip())
+                if match :
                     flag, message = match.groups()
                     if flag == "E" and self._ttyd_bind.match(message.strip()) :
                         # ttyd failed to bind port
                         self.sub.kill()
                         break
-                    elif flag == "N" and (m := self._ttyd_port.match(message.strip())) :
+                    m = self._ttyd_port.match(message.strip())
+                    if flag == "N" and m :
                         # ttyd succeeded to bind port
                         port = m.group(1)
                         self.url = TTYD_URL.format(port=port, key=key)
