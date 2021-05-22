@@ -123,7 +123,7 @@ Finally, create a site for Apache, eg, `/etc/apache2/sites-available/cow.conf`:
 ```
 
 Note how URLs as configured in `TTYD_URL` are rewritten and proxyed to actual `ttyd` instances; websockets are treated separately so that they are correctly proxyed.
-Note also Apache modules `rewrite`, `proxy`, `proxy_http`, and `proxy_wstunnel` should be enabled.
+Note also that Apache modules `rewrite`, `proxy`, `proxy_http`, and `proxy_wstunnel` should be enabled.
 
 ### Install on NGINX server
 
