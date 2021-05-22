@@ -5,7 +5,7 @@
 # The configuration options below may be duplicated in an external
 # file to avoid overwritting them on update. In such a case, set
 # environment variable COW_CONFIG to the path of this file, it will be
-# loaded at startup and will override the values below.
+# loaded at startup and can override the values below.
 
 # URL on which ttyd will be reachable, parametrized with {port} and {key}
 #
@@ -20,6 +20,9 @@ TTYD_URL = "http://localhost:{port}/{key}/"
 # timeout before to kill ttyd, default to 6 minutes (360 seconds)
 TTYD_TIMEOUT = 360
 
+# where to store user's files
+TMPDIR = "/tmp"
+
 # secret key to secure cookies
 # put whatever you want, keep it secret
 SECRET_KEY = "secret random stuff"
@@ -29,8 +32,8 @@ SECRET_KEY = "secret random stuff"
 END_BANNER = "\\n\\n\\033[0;31mtype ENTER to finish\\033[0m"
 
 # authentication:
-#  - None => no authentication
-#  - CAS => CAS authentication
+#  - None  => no authentication
+#  - "CAS" => CAS authentication
 AUTH = None
 
 # when AUTH = "CAS", server URL
@@ -71,7 +74,7 @@ class CoWrun (Thread) :
     def __init__ (self, source) :
         super().__init__()
         # save files to temp dictectory
-        self.tmp = TemporaryDirectory(dir=".")
+        self.tmp = TemporaryDirectory(dir=TMPDIR)
         self.url = self.err = None
         tmp = Path(self.tmp.name)
         obj_files = []
