@@ -52,7 +52,7 @@ from time import sleep
 
 import re, os
 
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 
 exec(Path(os.environ.get("COW_CONFIG", "/dev/null")).read_text())
@@ -175,16 +175,16 @@ def index () :
 def run () :
     if AUTH :
         if session.get("username", None) is None :
-            return {"status" : "not authenticated"}
+            return jsonify({"status" : "not authenticated"})
     try :
         handler = CoWrun(dict(request.form))
         if handler.url :
-            return {"status" : "OK",
-                    "link" : handler.url}
+            return jsonify({"status" : "OK",
+                            "link" : handler.url})
         else :
-            return {"status" : handler.err}
+            return jsonify({"status" : handler.err})
     except Exception as err :
         if app.config["ENV"] == "development" :
             print_exception(err.__class__, err, err.__traceback__)
-        return {"status" : "internal server error"}
+        return jsonify({"status" : "internal server error"})
 
