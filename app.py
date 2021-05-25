@@ -27,9 +27,21 @@ TMPDIR = "/tmp"
 # put whatever you want, keep it secret
 SECRET_KEY = "secret random stuff"
 
+# what to print on term before compilation
+# may contain ANSI escape codes for colors
+GCC_BANNER = "\\033[1;31mCOMPILING\\033[0m"
+
+# what to print on term between compilation and execution
+# may contain ANSI escape codes for colors
+RUN_BANNER = "\\n\\n\\033[1;31mRUNNING\\033[0m"
+
 # what to print on term when compilation/execution is finished
 # may contain ANSI escape codes for colors
-END_BANNER = "\\n\\n\\033[0;31mtype ENTER to finish\\033[0m"
+END_BANNER = "\\n\\n\\033[1;31mALL DONE, type ENTER to finish\\033[0m"
+
+# what to print as a fake prompt for Makefile commands
+# may contain ANSI escape codes for colors
+MAKE_PROMPT = "\\033[1;32m#\\033[0m "
 
 # authentication:
 #  - None  => no authentication
@@ -81,7 +93,10 @@ class CoWrun (Thread) :
         lflags = set()
         # add Makefile also
         with (tmp / "Makefile").open("w") as make :
-            make.write("all:" "\n")
+            make.write("all:"
+                       "\n\t"
+                       f"@echo -e '{GCC_BANNER}'"
+                       "\n")
             for path, text in source.items() :
                 path = tmp / secure_filename(path)
                 with path.open("w") as out :
@@ -92,12 +107,20 @@ class CoWrun (Thread) :
                 objpath = srcpath.with_suffix(".o")
                 obj_files.append(str(objpath))
                 make.write("\t"
+                           f"@echo -ne '{MAKE_PROMPT}'"
+                           "\n\t"
                            f"gcc -c -g -fno-inline -fno-omit-frame-pointer -std=c11"
                            f" -Wall -Wpedantic {' '.join(cf)}"
                            f" {srcpath} -o {objpath}"
                            "\n")
             make.write("\t"
+                       f"@echo -ne '{MAKE_PROMPT}'"
+                       "\n\t"
                        f"gcc {' '.join(obj_files)} {' '.join(lflags)} -o a.out"
+                       "\n\t"
+                       f"@echo -e '{RUN_BANNER}'"
+                       "\n\t"
+                       f"@echo -ne '{MAKE_PROMPT}'"
                        "\n\t"
                        f"./a.out"
                        "\n")
@@ -108,7 +131,7 @@ class CoWrun (Thread) :
             # -p 0 below => ttyd choses a random port
             # if it's already used, we loop to chose another
             self.sub = Popen(["ttyd", "--once", "--base-path", f"/{key}", "-p", "0",
-                              "-t", "fontSize=20",
+                              "-t", "fontSize=20", "-t", "titleFixed=CoW [run]",
                               "firejail", "--quiet", "--private=.", "--noroot",
                               "bash", "-c", f"make; echo -e '{END_BANNER}'; read"],
                              stdout=PIPE, stderr=STDOUT, cwd=tmp,
