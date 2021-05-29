@@ -57,6 +57,7 @@ CAS_SERVER = "https://sso.pdx.edu"
 
 from tempfile import TemporaryDirectory
 from pathlib import Path
+from shutil import rmtree
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 from threading import Thread
 from secrets import token_urlsafe
@@ -161,7 +162,10 @@ class CoWrun (Thread) :
         except TimeoutExpired :
             self.sub.kill()
         finally :
-            self.tmp.cleanup()
+            try :
+                self.tmp.cleanup()
+            except :
+                rmtree(self.tmp.name, ignore_errors=True)
 
 ##
 ## W stuff
