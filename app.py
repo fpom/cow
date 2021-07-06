@@ -196,6 +196,8 @@ def index () :
         if user is None :
             return redirect(url_for("cas.login"))
         session["username"] = user
+    with open("login.log", "a") as log :
+        log.write(f"{user} => {session}\n")
     return render_template("index.html")
 
 @app.route("/run", methods=["POST"])
