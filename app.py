@@ -63,7 +63,7 @@ from threading import Thread
 from secrets import token_urlsafe
 from time import sleep
 
-import re, os
+import re, os, shlex
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
@@ -84,6 +84,8 @@ class CoWrun (Thread) :
     _ttyd_line = re.compile(r"^\[.*?\]\s*(.*?):\s*(.*)$")
     _ttyd_bind = re.compile("^ERROR on binding fd \d* to port \d* \(.*\)$")
     _ttyd_port = re.compile("^Listening on port: (\d+)$")
+    _gcc_opt = re.compile("^//\s*gcc\s*:\s*(.+)$", re.I|re.M)
+    _ldd_opt = re.compile("^//\s*ldd\s*:\s*(.+)$", re.I|re.M)
     def __init__ (self, source) :
         super().__init__()
         # save files to temp dictectory
@@ -103,6 +105,10 @@ class CoWrun (Thread) :
                 with path.open("w") as out :
                     out.write(text)
                 cf, lf = getopt([path], "linux", "gcc")
+                for match in self._gcc_opt.findall(text) :
+                    cf.update(shlex.split(match))
+                for match in self._ldd_opt.findall(text) :
+                    lf.update(shlex.split(match))
                 lflags.update(lf)
                 srcpath = path.relative_to(tmp)
                 objpath = srcpath.with_suffix(".o")

@@ -10,6 +10,8 @@ User features:
  - automatically compile programs
  - execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd)
  - possible interaction with the program
+ - customisable compilation: use `// gcc: --your-flags` or `// ldd: --more-flags` 
+   in the source code to append compilation/link flags
 
 ![CoW in action](https://raw.githubusercontent.com/fpom/cow/main/misc/demo.gif)
 
