@@ -67,6 +67,7 @@ import re, os, shlex
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 exec(Path(os.environ.get("COW_CONFIG", "/dev/null")).read_text())
 
@@ -179,6 +180,7 @@ class CoWrun (Thread) :
 
 app = Flask(__name__, template_folder="templates")
 app.secret_key = SECRET_KEY
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 if AUTH == "CAS" :
     CAS(app)
