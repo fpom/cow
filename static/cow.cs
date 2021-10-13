@@ -131,20 +131,34 @@ remove =
 
 download =
     on_click : () ->
-        info = editor.active()
-        $("#download")
-            .attr("download", info.filename)
-            .attr("href",
-                  "data:application/octet-stream;charset=utf-8;base64;,\
-                    #{ $.base64.encode(info.codemirror.getValue()) }")
+        source = {}
+        for filename, codemirror of editor.instances
+            source[filename] = codemirror.getValue()
+        $.post("/dl", source).done(download.on_done)
     init : () ->
+        download.dialog = $("#download-dialog-message").dialog
+            autoOpen : false
+            resizable : false
+            height : "auto"
+            width : 400
+            modal : true
+            buttons :
+                OK : () ->
+                  download.dialog.dialog("close")
         $("#download").on("click", download.on_click)
+    on_done : (resp) ->
+        if resp.status == "OK"
+            link = $("<a id=\"zipdl\" download=\"#{ resp.filename }\" \
+                href=\"data:application/octet-stream;charset=utf-8;base64;\
+                ,#{ resp.data }\">#{ resp.filename }</a>")
+            $("#download-message").html(link)
+            link.click () -> download.dialog.dialog("close")
+            download.dialog.dialog("open")
 
 run =
     on_click : () ->
         source = {}
         for filename, codemirror of editor.instances
-            console.log filename, codemirror
             source[filename] = codemirror.getValue()
         $.post("/run", source).done(run.on_done)
     on_done : (resp) ->

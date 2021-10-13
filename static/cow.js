@@ -180,12 +180,40 @@
 
   download = {
     on_click: function() {
-      var info;
-      info = editor.active();
-      return $("#download").attr("download", info.filename).attr("href", "data:application/octet-stream;charset=utf-8;base64;," + ($.base64.encode(info.codemirror.getValue())));
+      var codemirror, filename, ref, source;
+      source = {};
+      ref = editor.instances;
+      for (filename in ref) {
+        codemirror = ref[filename];
+        source[filename] = codemirror.getValue();
+      }
+      return $.post("/dl", source).done(download.on_done);
     },
     init: function() {
+      download.dialog = $("#download-dialog-message").dialog({
+        autoOpen: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+          OK: function() {
+            return download.dialog.dialog("close");
+          }
+        }
+      });
       return $("#download").on("click", download.on_click);
+    },
+    on_done: function(resp) {
+      var link;
+      if (resp.status === "OK") {
+        link = $("<a id=\"zipdl\" download=\"" + resp.filename + "\" href=\"data:application/octet-stream;charset=utf-8;base64;," + resp.data + "\">" + resp.filename + "</a>");
+        $("#download-message").html(link);
+        link.click(function() {
+          return download.dialog.dialog("close");
+        });
+        return download.dialog.dialog("open");
+      }
     }
   };
 
@@ -196,7 +224,6 @@
       ref = editor.instances;
       for (filename in ref) {
         codemirror = ref[filename];
-        console.log(filename, codemirror);
         source[filename] = codemirror.getValue();
       }
       return $.post("/run", source).done(run.on_done);

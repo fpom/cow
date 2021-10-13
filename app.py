@@ -63,9 +63,9 @@ from threading import Thread
 from secrets import token_urlsafe
 from time import sleep
 
-import re, os, shlex
+import re, os, shlex, zipfile, io, base64
 
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -114,11 +114,21 @@ class CoWrun (Thread) :
                 srcpath = path.relative_to(tmp)
                 objpath = srcpath.with_suffix(".o")
                 obj_files.append(str(objpath))
+                # see https://airbus-seclab.github.io/c-compiler-security/gcc_compilation.html
                 make.write("\t"
                            f"@echo -ne '{MAKE_PROMPT}'"
                            "\n\t"
                            f"gcc -c -g -fno-inline -fno-omit-frame-pointer -std=c11"
-                           f" -Wall -Wpedantic {' '.join(cf)}"
+                           f" -Wall -Wpedantic -Wextra {' '.join(cf)}"
+                           f" -Wformat=2 -Wformat-overflow=2 -Wformat-truncation=2"
+                           f" -Wnull-dereference -Walloca -Wvla -Warray-bounds=2"
+                           f" -Wstringop-overflow=4"
+                           f" -Wconversion -Wint-conversion"
+                           f" -Wlogical-op -Wduplicated-cond -Wduplicated-branches"
+                           f" -Wformat-signedness "
+                           f" -Wstrict-overflow=4"
+                           f" -Wundef"
+                           f" -Wswitch-default -Wswitch-enum"
                            f" {srcpath} -o {objpath}"
                            "\n")
             make.write("\t"
@@ -208,9 +218,8 @@ def index () :
 
 @app.route("/run", methods=["POST"])
 def run () :
-    if AUTH :
-        if session.get("username", None) is None :
-            return jsonify({"status" : "not authenticated"})
+    if AUTH and session.get("username", None) is None :
+        return jsonify({"status" : "not authenticated"})
     try :
         handler = CoWrun(dict(request.form))
         if handler.url :
@@ -223,3 +232,19 @@ def run () :
             print_exception(err.__class__, err, err.__traceback__)
         return jsonify({"status" : "internal server error"})
 
+@app.route("/dl", methods=["POST"])
+def dl () :
+    if AUTH and session.get("username", None) is None :
+        return jsonify({"status" : "not authenticated"})
+    stream = io.BytesIO()
+    filename = None
+    with zipfile.ZipFile(stream, mode="w",
+                         compression=zipfile.ZIP_DEFLATED,
+                         compresslevel=9) as z :
+        for name, data in request.form.items() :
+            if filename is None :
+                filename = Path(name).with_suffix(".zip")
+            z.writestr(name, data)
+    return jsonify({"status" : "OK",
+                    "filename" : str(filename),
+                    "data" : base64.b64encode(stream.getvalue()).decode("utf-8")})
