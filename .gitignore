@@ -3,5 +3,5 @@
 \#*
 __pycache__
 .python-version
-/config.py
+/ibisc.ini
 /ttyd

@@ -44,18 +44,45 @@ editor =
         $("#tabs").tabs().addClass("ui-helper-clearfix");
         $("#tabs li").removeClass("ui-corner-top").addClass("ui-corner-right");
 
+lang =
+    do : () ->
+        [code, name] = $("#lang-select").val().split("/", 2)
+        $("#lang img").attr
+            alt : name
+            title : "#{ name } (change)"
+            src : "static/img/#{ code }.png"
+        lang.dialog.dialog("close")
+        window.location.href = "/#{ code }"
+    on_click : () ->
+        lang.dialog.dialog("open")
+    on_submit : () ->
+        event.preventDefault()
+        lang.do()
+    init : () ->
+        lang.dialog = $("#lang-dialog-confirm").dialog
+            autoOpen : false
+            resizable : false
+            height : "auto"
+            width : 400
+            modal : true
+            buttons :
+                Yes : lang.do
+                No : () ->
+                  lang.dialog.dialog("close")
+        $("#lang").on("click", lang.on_click)
+
 create =
     do : () ->
         name = create.field.val()
-        if not name.match /\.c$/
-            name = "#{ name }.c"
+        if not name.match /{{ lang_extre }}/
+            name = "#{ name }{{ lang_ext[0] }}"
         editor.create(name)
         create.dialog.dialog("close")
     on_click : () ->
-        name = "newfile.c"
+        name = "newfile{{ lang_ext[0] }}"
         num = 1
         while editor.instances[name]?
-            name = "newfile-#{ num }.c"
+            name = "newfile-#{ num }{{ lang_ext[0] }}"
             num += 1
         create.field.val(name)
         create.dialog.dialog("open")
@@ -81,8 +108,8 @@ create =
 rename =
     do : () ->
         name = rename.field.val()
-        if not name.match /\.c$/
-            name = "#{ name }.c"
+        if not name.match /{{ lang_extre }}/
+            name = "#{ name }{{ lang_ext[0] }}"
         editor.rename(name)
         rename.dialog.dialog("close")
     on_click : () ->
@@ -134,7 +161,7 @@ download =
         source = {}
         for filename, codemirror of editor.instances
             source[filename] = codemirror.getValue()
-        $.post("/dl", source).done(download.on_done)
+        $.post("/dl/{{ lang }}", source).done(download.on_done)
     init : () ->
         download.dialog = $("#download-dialog-message").dialog
             autoOpen : false
@@ -160,7 +187,7 @@ run =
         source = {}
         for filename, codemirror of editor.instances
             source[filename] = codemirror.getValue()
-        $.post("/run", source).done(run.on_done)
+        $.post("/run/{{ lang }}", source).done(run.on_done)
     on_done : (resp) ->
         if resp.status == "OK"
             win = window.open(resp.link, "_blank")
@@ -185,9 +212,10 @@ run =
 
 $ ->
     editor.init()
+    lang.init()
     rename.init()
     create.init()
     remove.init()
     download.init()
     run.init()
-    editor.create("main.c")
+    editor.create("main{{ lang_ext[0] }}")

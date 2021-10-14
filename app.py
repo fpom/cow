@@ -1,12 +1,16 @@
+from pathlib import Path
+
+from flask import Flask, render_template, request, session, redirect, url_for, \
+    jsonify, abort
+from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 ##
-## CONFIGURATION
+## configuration
 ##
 
-# The configuration options below may be duplicated in an external
-# file to avoid overwritting them on update. In such a case, set
-# environment variable COW_CONFIG to the path of this file, it will be
-# loaded at startup and can override the values below.
-
+DEFAULT_CFG = """
+[COW]
 # URL on which ttyd will be reachable, parametrized with {port} and {key}
 #
 # For example, a reverse proxy may redirect
@@ -51,150 +55,66 @@ AUTH = None
 # when AUTH = "CAS", server URL
 CAS_SERVER = "https://sso.pdx.edu"
 
-##
-## END OF CONFIGURATION
-##
+[LANG:C]
+NAME = C11
+EXT = .c, .h
+MODE = clike/clike.js
 
-from tempfile import TemporaryDirectory
-from pathlib import Path
-from shutil import rmtree
-from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
-from threading import Thread
-from secrets import token_urlsafe
-from time import sleep
+[LANG:PROCESSING]
+NAME = Processing 3
+EXT = .pde
+MODE = clike/clike.js
+"""
 
-import re, os, shlex, zipfile, io, base64
+import configparser, ast, os
+import lang
 
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort
-from werkzeug.utils import secure_filename
-from werkzeug.middleware.proxy_fix import ProxyFix
+class Config (dict) :
+    @classmethod
+    def load (cls) :
+        self = cls()
+        cfg = configparser.ConfigParser()
+        cfg.read_string(DEFAULT_CFG)
+        cfg.read([Path(__file__).parent / "cow.ini",
+                  Path(os.environ.get("COW_CONFIG", ""))])
+        for sec, items in cfg.items() :
+            top = self
+            lang = None
+            for part in sec.lower().split(":") :
+                if part not in top :
+                    top[part] = cls()
+                top = top[part]
+                if lang is None and part == "lang" :
+                    lang = True
+                elif lang :
+                    top["lang"] = part
+                    lang = False
+            for key, val in items.items() :
+                try :
+                    top[key.lower()] = ast.literal_eval(val)
+                except :
+                    top[key.lower()] = val
+        return self
+    def __getattr__ (self, name) :
+        return self[name.lower()]
+    def __matmul__ (self, name) :
+        return {k : v for k, v in self.items() if k.startswith(name)}
 
-exec(Path(os.environ.get("COW_CONFIG", "/dev/null")).read_text())
-
-if AUTH == "CAS" :
-    from flask_cas import CAS
-
-from hadlib import getopt
-
-##
-## C stuff
-##
-
-class CoWrun (Thread) :
-    # match ttyd output
-    _ttyd_line = re.compile(r"^\[.*?\]\s*(.*?):\s*(.*)$")
-    _ttyd_bind = re.compile("^ERROR on binding fd \d* to port \d* \(.*\)$")
-    _ttyd_port = re.compile("^Listening on port: (\d+)$")
-    _gcc_opt = re.compile("^//\s*gcc\s*:\s*(.+)$", re.I|re.M)
-    _ldd_opt = re.compile("^//\s*ldd\s*:\s*(.+)$", re.I|re.M)
-    def __init__ (self, source) :
-        super().__init__()
-        # save files to temp dictectory
-        self.tmp = TemporaryDirectory(dir=TMPDIR)
-        self.url = self.err = None
-        tmp = Path(self.tmp.name)
-        obj_files = []
-        lflags = set()
-        # add Makefile also
-        with (tmp / "Makefile").open("w") as make :
-            make.write("all:"
-                       "\n\t"
-                       f"@echo -e '{GCC_BANNER}'"
-                       "\n")
-            for path, text in source.items() :
-                path = tmp / secure_filename(path)
-                with path.open("w") as out :
-                    out.write(text)
-                cf, lf = getopt([path], "linux", "gcc")
-                for match in self._gcc_opt.findall(text) :
-                    cf.update(shlex.split(match))
-                for match in self._ldd_opt.findall(text) :
-                    lf.update(shlex.split(match))
-                lflags.update(lf)
-                srcpath = path.relative_to(tmp)
-                objpath = srcpath.with_suffix(".o")
-                obj_files.append(str(objpath))
-                # see https://airbus-seclab.github.io/c-compiler-security/gcc_compilation.html
-                make.write("\t"
-                           f"@echo -ne '{MAKE_PROMPT}'"
-                           "\n\t"
-                           f"gcc -c -g -fno-inline -fno-omit-frame-pointer -std=c11"
-                           f" -Wall -Wpedantic -Wextra {' '.join(cf)}"
-                           f" -Wformat=2 -Wformat-overflow=2 -Wformat-truncation=2"
-                           f" -Wnull-dereference -Walloca -Wvla -Warray-bounds=2"
-                           f" -Wstringop-overflow=4"
-                           f" -Wconversion -Wint-conversion"
-                           f" -Wlogical-op -Wduplicated-cond -Wduplicated-branches"
-                           f" -Wformat-signedness "
-                           f" -Wstrict-overflow=4"
-                           f" -Wundef"
-                           f" -Wswitch-default -Wswitch-enum"
-                           f" {srcpath} -o {objpath}"
-                           "\n")
-            make.write("\t"
-                       f"@echo -ne '{MAKE_PROMPT}'"
-                       "\n\t"
-                       f"gcc {' '.join(obj_files)} {' '.join(lflags)} -o a.out"
-                       "\n\t"
-                       f"@echo -e '{RUN_BANNER}'"
-                       "\n\t"
-                       f"@echo -ne '{MAKE_PROMPT}'"
-                       "\n\t"
-                       f"./a.out"
-                       "\n")
-        # start ttyd
-        key = token_urlsafe(10)
-        port = None
-        while port is None :
-            # -p 0 below => ttyd choses a random port
-            # if it's already used, we loop to chose another
-            self.sub = Popen(["ttyd", "--once", "--base-path", f"/{key}", "-p", "0",
-                              "-t", "fontSize=20", "-t", "titleFixed=CoW [run]",
-                              "firejail", "--quiet", "--private=.", "--noroot",
-                              "bash", "-c", f"make; echo -e '{END_BANNER}'; read"],
-                             stdout=PIPE, stderr=STDOUT, cwd=tmp,
-                             encoding="utf-8", errors="replace")
-            for line in self.sub.stdout :
-                match = self._ttyd_line.match(line.strip())
-                if match :
-                    flag, message = match.groups()
-                    if flag == "E" and self._ttyd_bind.match(message.strip()) :
-                        # ttyd failed to bind port
-                        self.sub.kill()
-                        break
-                    m = self._ttyd_port.match(message.strip())
-                    if flag == "N" and m :
-                        # ttyd succeeded to bind port
-                        port = m.group(1)
-                        self.url = TTYD_URL.format(port=port, key=key)
-                        break
-            else :
-                # no break => another error
-                self.err = "could not start ttyd"
-                break
-        self.start()
-    def run (self) :
-        try :
-            self.sub.wait(timeout=TTYD_TIMEOUT)
-        except TimeoutExpired :
-            self.sub.kill()
-        finally :
-            try :
-                self.tmp.cleanup()
-            except :
-                rmtree(self.tmp.name, ignore_errors=True)
+CFG = Config.load()
+LANG = lang.load(CFG)
 
 ##
-## W stuff
+## Flask part
 ##
 
 app = Flask(__name__, template_folder="templates")
-app.secret_key = SECRET_KEY
+app.secret_key = CFG.COW.SECRET_KEY
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-if AUTH == "CAS" :
+if CFG.COW.AUTH == "CAS" :
+    from flask_cas import CAS
     CAS(app)
-    app.config["CAS_SERVER"] = CAS_SERVER
+    app.config["CAS_SERVER"] = CFG.COW.CAS_SERVER
     app.config["CAS_AFTER_LOGIN"] = "index"
 
 if app.config["ENV"] == "development" :
@@ -207,44 +127,57 @@ if app.config["ENV"] == "development" :
     except ImportError :
         from traceback import print_exception
 
-@app.route("/")
-def index () :
-    if AUTH == "CAS" :
+@app.route("/", defaults={"lang" : "c"})
+@app.route("/<lang>")
+def index (lang) :
+    if CFG.COW.AUTH == "CAS" :
         user = session.get(app.config["CAS_USERNAME_SESSION_KEY"], None)
         if user is None :
             return redirect(url_for("cas.login"))
         session["username"] = user
-    return render_template("index.html")
+    try :
+        print(LANG[lang] @ "lang")
+        return render_template("index.html", **(LANG[lang] @ "lang"))
+    except KeyError :
+        abort(404)
 
-@app.route("/run", methods=["POST"])
-def run () :
-    if AUTH and session.get("username", None) is None :
+@app.route("/<lang>.js")
+def cow_js (lang) :
+    if CFG.COW.AUTH and session.get("username", None) is None :
+        abort(401)
+    try :
+        return render_template("cow.js", **(LANG[lang] @ "lang"))
+    except KeyError :
+        abort(404)
+
+@app.route("/run/<lang>", methods=["POST"])
+def run (lang) :
+    if CFG.COW.AUTH and session.get("username", None) is None :
         return jsonify({"status" : "not authenticated"})
     try :
-        handler = CoWrun(dict(request.form))
-        if handler.url :
+        runner = LANG[lang].run({Path(p) : d for p, d in request.form.items()})
+    except KeyError :
+        abort(404)
+    try :
+        if runner.url :
             return jsonify({"status" : "OK",
-                            "link" : handler.url})
+                            "link" : runner.url})
         else :
-            return jsonify({"status" : handler.err})
+            return jsonify({"status" : runner.err})
     except Exception as err :
         if app.config["ENV"] == "development" :
             print_exception(err.__class__, err, err.__traceback__)
         return jsonify({"status" : "internal server error"})
 
-@app.route("/dl", methods=["POST"])
-def dl () :
-    if AUTH and session.get("username", None) is None :
+@app.route("/dl/<lang>", methods=["POST"])
+def dl (lang) :
+    if CFG.COW.AUTH and session.get("username", None) is None :
         return jsonify({"status" : "not authenticated"})
-    stream = io.BytesIO()
-    filename = None
-    with zipfile.ZipFile(stream, mode="w",
-                         compression=zipfile.ZIP_DEFLATED,
-                         compresslevel=9) as z :
-        for name, data in request.form.items() :
-            if filename is None :
-                filename = Path(name).with_suffix(".zip")
-            z.writestr(name, data)
+    try :
+        zipper = LANG[lang].zip({Path(secure_filename(n)) : d
+                                 for n, d in request.form.items()})
+    except KeyError :
+        abort(404)
     return jsonify({"status" : "OK",
-                    "filename" : str(filename),
-                    "data" : base64.b64encode(stream.getvalue()).decode("utf-8")})
+                    "filename" : str(zipper.zipname),
+                    "data" : zipper.data})
