@@ -136,7 +136,6 @@ def index (lang) :
             return redirect(url_for("cas.login"))
         session["username"] = user
     try :
-        print(LANG[lang] @ "lang")
         return render_template("index.html", **(LANG[lang] @ "lang"))
     except KeyError :
         abort(404)

@@ -1,17 +1,17 @@
-# CoW: C over the Web
+# CoW: Code over the Web
 
-CoW is a minimalist C online programming environment, with only the required features so that somebody can program and execute C code on a real Linux box without having to install anything.
+CoW is a minimalist online programming environment, with only the required features so that somebody can program and execute code on a real Linux box without having to install anything.
 
 User features:
 
+ - support several programming languages (see below)
  - edit multiple files
  - download files
  - full-featured editor thanks to [CodeMirror](http://codemirror.net)
  - automatically compile programs
- - execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd)
+ - execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd),
+   or in a X11 terminal thanks to [Xpra](http://github.com/Xpra-org/xpra)
  - possible interaction with the program
- - customisable compilation: use `// gcc: --your-flags` or `// ldd: --more-flags` 
-   in the source code to append compilation/link flags
 
 ![CoW in action](https://raw.githubusercontent.com/fpom/cow/main/misc/demo.gif)
 
@@ -28,6 +28,32 @@ Development guidelines:
  - leverage established third-party projects to provide the most complex features
  - avoid using server as much as possible
  - protect the server from user's programs
+
+## Languages supported
+
+### C
+
+CoW supports C through [GCC](http://gcc.gnu.org), with additional features:
+
+ - use ISO C11 standard
+ - [get the maximum of GCC](http://airbus-seclab.github.io/c-compiler-security/)
+   to capture as many errors as possible
+ - customisable compilation: use `// gcc: --your-flags` or `// ldd: --more-flags` 
+   in the source code to append compilation/link flags
+
+### Processing
+
+CoW supports [Processing 3](http://processing.org) (Java version)
+
+ - in a multiple-file project, the first file give its name to the sketchbook
+
+### Python
+
+CoW supports [Python 3](http://www.python.org)
+
+ - execute in a text terminal (graphical interfaces will not work)
+ - no third party packages installed
+ - in a multiple-file project, the first file is assumed to be the main program
 
 ## Installation
 
@@ -48,21 +74,23 @@ Dependencies:
 In order to understand configuration, let's first explain how CoW works:
 
  - a Flask server exposes one page with the files editor
- - editing, managing files, and downloading is performed on the client's browser
- - running code is performed by sending it's source to the Flask server on which:
+ - editing and managing files are performed on the client's browser
+ - downloading uses the server to package the files into a zip archive
+ - running code is performed by sending the source files to the Flask server on which:
    - source code is saved to a temporary directory
    - a `Makefile` is built
-   - `make` is launched, within `firejail`, within `ttyd`
-   - an URL is returned to the client so it opens a new window to the `ttyd` terminal
+   - `make` is launched, within `firejail`, within `ttyd` or `xpra`
+   - an URL is returned to the client so it opens a new window to the
+     `ttyd`/`xpra` terminal
 
 There's two things to note here:
 
  - users must allow popups in their browser for CoW
- - `ttyd` must be reachable from the users' browser
+ - `ttyd`/`xpra` must be reachable from the users' browser
 
 This latter point is easy when CoW is run locally since the browser just connect to `localhost`.
-But on a server, most ports are usually not reachable and the HTTP server must be configured to reverse proxy the connections to `ttyd`.
-To do so, CoW must be configured to return recognisable URLs that are forwarded by the HTTP server to the actual `ttyd` ports on the local server.
+But on a server, most ports are usually not reachable and the HTTP server must be configured to reverse proxy the connections to `ttyd`/`xpra`.
+To do so, CoW must be configured to return recognisable URLs that are forwarded by the HTTP server to the actual `ttyd`/`xpra` ports on the local server.
 
 ### Run locally
 
@@ -79,11 +107,10 @@ $ adduser cow
 $ su - cow
 $ git clone https://github.com/fpom/cow.git
 $ mkdir tmp
-$ cat >config.py <<EOF
-TMPDIR = "/home/cow/tmp"
-SECRET_KEY = "a random string to secure cookies"
-TTYD_URL = "https://your.hostname/ttyd/{port}/{key}/"
-EOF
+$ edit cow.ini
+# TMPDIR = /home/cow/tmp
+# SECRET_KEY = a random string to secure cookies
+# TTYD_URL = https://your.hostname/ttyd/{port}/{key}/
 ```
 
 Note how `TTYD_URL` is configured so that the HTTP server can forward incoming connections to `ttyd`.
@@ -94,12 +121,9 @@ Then edit `/var/www/cow.wsgi` to instruct Apache how to run CoW:
 PYTHON = "/path/to/python3"
 import sys, os
 sys.path.insert(0, "/home/cow/cow")
-os.environ["COW_CONFIG"] = "/home/cow/config.py"
 os.chdir("/home/cow/cow")
 from app import app as application
 ```
-
-Note how we set `COW_CONFIG` environment variable so that CoW will read the `config.py` we've created earlier.
 
 Finally, create a site for Apache, eg, `/etc/apache2/sites-available/cow.conf`:
 
@@ -109,6 +133,9 @@ Finally, create a site for Apache, eg, `/etc/apache2/sites-available/cow.conf`:
 
   WSGIDaemonProcess cow user=cow group=cow threads=5
   WSGIScriptAlias / /var/www/cow.wsgi
+
+  # needed since Apache 2.4.48 (26-May-2021)
+  ProxyWebsocketFallbackToProxyHttp off
 
   RewriteEngine on
   RewriteRule    ^/ttyd/(\d*)/([^/]*)/ws$   ws://localhost:$1/$2/ws [P,L]
@@ -134,10 +161,10 @@ I don't use such a server now, feel free to contribute installation instructions
 ## Licence
 
 CoW is released under the MIT licence, see file `LICENCE` for more information.
+(C) 2021, Franck Pommereau <franck.pommereau@univ-evry.fr>
 
 Third-party utilities are included in CoW for a more convenient installation, they are released under their own licences:
 
  - `static/jquery.min.js`: [jQuery](http://jquery.com)
- - `static/jquery.base64.js`: [jQuery base64 plugin](http://plugins.jquery.com/base64)
  - `static/jqui/`: [jQuery UI](http://jqueryui.com)
  - `statis/cm/`: [CodeMirror](http://codemirror.net)
