@@ -74,8 +74,6 @@ lang =
 create =
     do : () ->
         name = create.field.val()
-        if not name.match /{{ lang_extre }}/
-            name = "#{ name }{{ lang_ext[0] }}"
         editor.create(name)
         create.dialog.dialog("close")
     on_click : () ->
@@ -108,8 +106,6 @@ create =
 rename =
     do : () ->
         name = rename.field.val()
-        if not name.match /{{ lang_extre }}/
-            name = "#{ name }{{ lang_ext[0] }}"
         editor.rename(name)
         rename.dialog.dialog("close")
     on_click : () ->

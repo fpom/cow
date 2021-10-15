@@ -102,9 +102,6 @@
     "do": function() {
       var name;
       name = create.field.val();
-      if (!name.match(/{{ lang_extre }}/)) {
-        name = name + "{{ lang_ext[0] }}";
-      }
       editor.create(name);
       return create.dialog.dialog("close");
     },
@@ -149,9 +146,6 @@
     "do": function() {
       var name;
       name = rename.field.val();
-      if (!name.match(/{{ lang_extre }}/)) {
-        name = name + "{{ lang_ext[0] }}";
-      }
       editor.rename(name);
       return rename.dialog.dialog("close");
     },

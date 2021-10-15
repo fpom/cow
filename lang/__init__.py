@@ -98,9 +98,7 @@ def load (cfg) :
         lng = LANG[name] = cfg.__class__({(f"lang_{k}" if k != "lang" else k) : v
                                           for k, v in items.items()})
         ext = lng["lang_ext"] = [e.strip() for e in lng["lang_ext"].split(",")]
-        lng.update(lang_extre="\\.(%s)$" % "|".join(re.escape(e.lstrip("."))
-                                                    for e in ext),
-                   run=mod.CoWrun,
+        lng.update(run=mod.CoWrun,
                    zip=mod.CoWzip)
     for lng in LANG.values() :
         lng["lang_all"] = {name : LANG[name]["lang_name"] for name in cfg.lang}
