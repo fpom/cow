@@ -1,0 +1,12 @@
+# Xpra HTML5 default settings
+#
+# ie:
+# port = 10000
+# keyboard_layout = gb
+# encoding = auto
+# bandwidth_limit = 10000000
+# debug_keyboard = true
+
+keyboard_layout=fr
+floating_menu=false
+printing=false

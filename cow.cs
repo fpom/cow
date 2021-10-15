@@ -178,13 +178,27 @@ download =
             link.click () -> download.dialog.dialog("close")
             download.dialog.dialog("open")
 
+wait =
+    init : () ->
+        wait.bar = $("#waitbar")
+        wait.bar.progressbar
+            value: false
+        wait.dialog = $("#wait-dialog").dialog
+            autoOpen : false
+            resizable : false
+            height : "auto"
+            width : 400
+            modal : true
+
 run =
     on_click : () ->
+        wait.dialog.dialog("open")
         source = {}
         for filename, codemirror of editor.instances
             source[filename] = codemirror.getValue()
         $.post("/run/{{ lang }}", source).done(run.on_done)
     on_done : (resp) ->
+        wait.dialog.dialog("close")
         if resp.status == "OK"
             win = window.open(resp.link, "_blank")
             if win?
@@ -212,6 +226,7 @@ $ ->
     rename.init()
     create.init()
     remove.init()
+    wait.init()
     download.init()
     run.init()
     editor.create("main{{ lang_ext[0] }}")

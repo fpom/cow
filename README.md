@@ -46,6 +46,7 @@ CoW supports C through [GCC](http://gcc.gnu.org), with additional features:
 CoW supports [Processing 3](http://processing.org) (Java version)
 
  - in a multiple-file project, the first file give its name to the sketchbook
+ - running a project is _slooooooowww_ because `xpra` takes a while to start
 
 ### Python
 
@@ -168,3 +169,4 @@ Third-party utilities are included in CoW for a more convenient installation, th
  - `static/jquery.min.js`: [jQuery](http://jquery.com)
  - `static/jqui/`: [jQuery UI](http://jqueryui.com)
  - `statis/cm/`: [CodeMirror](http://codemirror.net)
+ - `xpra-html5`: [Xpra HTML5 client](http://github.com/Xpra-org/xpra-html5)

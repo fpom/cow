@@ -46,7 +46,7 @@ CFG = Config.load()
 LANG = lang.load(CFG)
 
 ##
-## Flask part
+## web app
 ##
 
 app = Flask(__name__, template_folder="templates")
@@ -96,10 +96,11 @@ def run (lang) :
     if CFG.COW.AUTH and session.get("username", None) is None :
         return jsonify({"status" : "not authenticated"})
     try :
-        runner = LANG[lang].run({Path(p) : d for p, d in request.form.items()})
-    except KeyError :
+        cowrun = LANG[lang].run
+    except :
         abort(404)
     try :
+        runner = cowrun({Path(p) : d for p, d in request.form.items()})
         if runner.url :
             return jsonify({"status" : "OK",
                             "link" : runner.url})
