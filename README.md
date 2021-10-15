@@ -10,7 +10,7 @@ User features:
  - full-featured editor thanks to [CodeMirror](http://codemirror.net)
  - automatically compile programs
  - execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd),
-   or in a X11 terminal thanks to [Xpra](http://github.com/Xpra-org/xpra)
+   or (unstable) in a X11 terminal thanks to [Xpra](http://github.com/Xpra-org/xpra)
  - possible interaction with the program
 
 ![CoW in action](https://raw.githubusercontent.com/fpom/cow/main/misc/demo.gif)
@@ -47,6 +47,8 @@ CoW supports [Processing 3](http://processing.org) (Java version)
 
  - in a multiple-file project, the first file give its name to the sketchbook
  - running a project is _slooooooowww_ because `xpra` takes a while to start
+ - using `xpra` currently does not work behind Apache reverse proxy,
+   so **Processing language is disabled by default**
 
 ### Python
 

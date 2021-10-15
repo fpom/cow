@@ -152,6 +152,8 @@ def load (cfg) :
     LANG = cfg.__class__()
     langs = {}
     for name, items in cfg.lang.items() :
+        if not items["enabled"] :
+            continue
         mod = importlib.import_module(f".{name}", "lang")
         mod.CoWrun.CFG = mod.CoWzip.CFG = cfg
         lng = LANG[name] = cfg.__class__({(f"lang_{k}" if k != "lang" else k) : v
