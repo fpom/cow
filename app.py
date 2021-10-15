@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from flask import Flask, render_template, request, session, redirect, url_for, \
-    jsonify, abort
+    jsonify, abort, make_response
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -82,12 +82,14 @@ def index (lang) :
     except KeyError :
         abort(404)
 
-@app.route("/<lang>.js")
+@app.route("/cow<lang>.js")
 def cow_js (lang) :
     if CFG.COW.AUTH and session.get("username", None) is None :
         abort(401)
     try :
-        return render_template("cow.js", **(LANG[lang] @ "lang"))
+        ret = make_response(render_template("cow.js", **(LANG[lang] @ "lang")))
+        ret.mimetype = "application/javascript"
+        return ret
     except KeyError :
         abort(404)
 
