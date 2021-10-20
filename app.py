@@ -48,7 +48,7 @@ LANG = lang.load(CFG)
 
 for key, old in CFG.get("env",  {}).items() :
     try :
-        os.environ[key] = new = Template(old).substitute(os.environ)
+        os.environ[key.upper()] = Template(old).substitute(os.environ)
     except KeyError :
         pass
 
