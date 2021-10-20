@@ -1,4 +1,5 @@
 from pathlib import Path
+from string import Template
 
 from flask import Flask, render_template, request, session, redirect, url_for, \
     jsonify, abort, make_response
@@ -44,6 +45,12 @@ class Config (dict) :
 
 CFG = Config.load()
 LANG = lang.load(CFG)
+
+for key, old in CFG.get("env",  {}).items() :
+    try :
+        os.environ[key] = new = Template(old).substitute(os.environ)
+    except KeyError :
+        pass
 
 ##
 ## web app

@@ -37,6 +37,7 @@ class CoWrun (Thread) :
         # start ttyd
         key = token_urlsafe(10)
         port = None
+        env = dict(os.environ)
         while port is None :
             # random port withing [49152;65535]
             _port = 49152 + randbelow(16385)
@@ -53,7 +54,7 @@ class CoWrun (Thread) :
                               "--noroot",
                               "bash", "-c",
                               f"make; echo -e '{self.CFG.COW.END_BANNER}'; read"],
-                             stdout=PIPE, stderr=STDOUT, cwd=tmp,
+                             stdout=PIPE, stderr=STDOUT, cwd=tmp, env=env,
                              encoding="utf-8", errors="replace")
             for line in self.sub.stdout :
                 match = self._ttyd_line.match(line.strip())
