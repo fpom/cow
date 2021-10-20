@@ -152,17 +152,17 @@ class CoWzip (object) :
 def load (cfg) :
     LANG = cfg.__class__()
     langs = {}
-    for name, items in cfg.lang.items() :
-        if not items["enabled"] :
+    for name, items in cfg.LANG.items() :
+        if not items["ENABLED"] :
             continue
-        mod = importlib.import_module(f".{name}", "lang")
+        mod = importlib.import_module(f".{name.lower()}", "lang")
         mod.CoWrun.CFG = mod.CoWzip.CFG = cfg
-        lng = LANG[name] = cfg.__class__({(f"lang_{k}" if k != "lang" else k) : v
+        lng = LANG[name] = cfg.__class__({(f"LANG_{k}" if k != "LANG" else k) : v
                                           for k, v in items.items()})
-        ext = lng["lang_ext"] = [e.strip() for e in lng["lang_ext"].split(",")]
+        ext = lng["LANG_EXT"] = [e.strip() for e in lng["LANG_EXT"].split(",")]
         lng.update(run=mod.CoWrun,
                    zip=mod.CoWzip)
-    lang_all = {name : conf["lang_name"] for name, conf in LANG.items()}
+    lang_all = {name : conf["LANG_NAME"] for name, conf in LANG.items()}
     for lng in LANG.values() :
-        lng["lang_all"] = lang_all
+        lng["LANG_ALL"] = lang_all
     return LANG

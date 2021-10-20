@@ -18,37 +18,38 @@ class Config (dict) :
     def load (cls) :
         self = cls()
         cfg = configparser.ConfigParser()
+        cfg.optionxform = str
         cfg.read([Path(__file__).parent / "cow.ini",
                   Path(os.environ.get("COW_CONFIG", ""))])
         for sec, items in cfg.items() :
             top = self
             lang = None
-            for part in sec.lower().split(":") :
+            for part in sec.split(":") :
                 if part not in top :
                     top[part] = cls()
                 top = top[part]
-                if lang is None and part == "lang" :
+                if lang is None and part == "LANG" :
                     lang = True
                 elif lang :
-                    top["lang"] = part
+                    top["LANG"] = part
                     lang = False
             for key, val in items.items() :
                 try :
-                    top[key.lower()] = ast.literal_eval(val)
+                    top[key] = ast.literal_eval(val)
                 except :
-                    top[key.lower()] = val
+                    top[key] = val
         return self
     def __getattr__ (self, name) :
-        return self[name.lower()]
+        return self[name]
     def __matmul__ (self, name) :
         return {k : v for k, v in self.items() if k.startswith(name)}
 
 CFG = Config.load()
 LANG = lang.load(CFG)
 
-for key, old in CFG.get("env",  {}).items() :
+for key, old in CFG.get("ENV",  {}).items() :
     try :
-        os.environ[key.upper()] = Template(old).substitute(os.environ)
+        os.environ[key] = Template(old).substitute(os.environ)
     except KeyError :
         pass
 
@@ -76,7 +77,7 @@ if app.config["ENV"] == "development" :
     except ImportError :
         from traceback import print_exception
 
-@app.route("/", defaults={"lang" : "c"})
+@app.route("/", defaults={"lang" : "C"})
 @app.route("/<lang>")
 def index (lang) :
     if CFG.COW.AUTH == "CAS" :
@@ -85,7 +86,7 @@ def index (lang) :
             return redirect(url_for("cas.login"))
         session["username"] = user
     try :
-        return render_template("index.html", **(LANG[lang] @ "lang"))
+        return render_template("index.html", **(LANG[lang] @ "LANG"))
     except KeyError :
         abort(404)
 
@@ -94,7 +95,7 @@ def cow_js (lang) :
     if CFG.COW.AUTH and session.get("username", None) is None :
         abort(401)
     try :
-        ret = make_response(render_template("cow.js", **(LANG[lang] @ "lang")))
+        ret = make_response(render_template("cow.js", **(LANG[lang] @ "LANG")))
         ret.mimetype = "application/javascript"
         return ret
     except KeyError :

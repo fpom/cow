@@ -107,10 +107,10 @@
     },
     on_click: function() {
       var name, num;
-      name = "newfile{{ lang_ext[0] }}";
+      name = "newfile{{ LANG_EXT[0] }}";
       num = 1;
       while (editor.instances[name] != null) {
-        name = "newfile-" + num + "{{ lang_ext[0] }}";
+        name = "newfile-" + num + "{{ LANG_EXT[0] }}";
         num += 1;
       }
       create.field.val(name);
@@ -218,7 +218,7 @@
         codemirror = ref[filename];
         source[filename] = codemirror.getValue();
       }
-      return $.post("/dl/{{ lang }}", source).done(download.on_done);
+      return $.post("/dl/{{ LANG }}", source).done(download.on_done);
     },
     init: function() {
       download.dialog = $("#download-dialog-message").dialog({
@@ -274,7 +274,7 @@
         codemirror = ref[filename];
         source[filename] = codemirror.getValue();
       }
-      return $.post("/run/{{ lang }}", source).done(run.on_done);
+      return $.post("/run/{{ LANG }}", source).done(run.on_done);
     },
     on_done: function(resp) {
       var win;
@@ -316,7 +316,7 @@
     wait.init();
     download.init();
     run.init();
-    return editor.create("main{{ lang_ext[0] }}");
+    return editor.create("main{{ LANG_EXT[0] }}");
   });
 
 }).call(this);

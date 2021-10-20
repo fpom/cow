@@ -77,10 +77,10 @@ create =
         editor.create(name)
         create.dialog.dialog("close")
     on_click : () ->
-        name = "newfile{{ lang_ext[0] }}"
+        name = "newfile{{ LANG_EXT[0] }}"
         num = 1
         while editor.instances[name]?
-            name = "newfile-#{ num }{{ lang_ext[0] }}"
+            name = "newfile-#{ num }{{ LANG_EXT[0] }}"
             num += 1
         create.field.val(name)
         create.dialog.dialog("open")
@@ -157,7 +157,7 @@ download =
         source = {}
         for filename, codemirror of editor.instances
             source[filename] = codemirror.getValue()
-        $.post("/dl/{{ lang }}", source).done(download.on_done)
+        $.post("/dl/{{ LANG }}", source).done(download.on_done)
     init : () ->
         download.dialog = $("#download-dialog-message").dialog
             autoOpen : false
@@ -196,7 +196,7 @@ run =
         source = {}
         for filename, codemirror of editor.instances
             source[filename] = codemirror.getValue()
-        $.post("/run/{{ lang }}", source).done(run.on_done)
+        $.post("/run/{{ LANG }}", source).done(run.on_done)
     on_done : (resp) ->
         wait.dialog.dialog("close")
         if resp.status == "OK"
@@ -229,4 +229,4 @@ $ ->
     wait.init()
     download.init()
     run.init()
-    editor.create("main{{ lang_ext[0] }}")
+    editor.create("main{{ LANG_EXT[0] }}")

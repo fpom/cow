@@ -9,22 +9,22 @@
     <script src="static/cm/lib/codemirror.js"></script>
     <script src="static/cm/addon/edit/matchbrackets.js"></script>
     <script src="static/cm/addon/selection/active-line.js"></script>
-    <script src="static/cm/mode/{{ lang_mode }}"></script>
+    <script src="static/cm/mode/{{ LANG_MODE }}"></script>
     <!-- JQuery -->
     <link rel="stylesheet" href="static/jqui/jquery-ui.min.css">
     <script src="static/jquery.min.js"></script>
     <script src="static/jqui/jquery-ui.min.js"></script>
     <!-- custom -->
     <link rel="stylesheet" href="static/cow.css" rel="stylesheet">
-    <script src="{{ url_for('cow_js', lang=lang) }}"></script>
+    <script src="{{ url_for('cow_js', lang=LANG) }}"></script>
   </head>
   <body>
     <div id="lang-dialog-confirm" title="Switch language?">
       <form>
         <label for="lang-select"></label>
         <select name="lang-select" id="lang-select">
-          {% for lkey, lname in lang_all.items() %}
-          {% if lkey == lang %}
+          {% for lkey, lname in LANG_ALL.items() %}
+          {% if lkey == LANG %}
           <option value="{{ lkey }}/{{ lname }}" selected="selected">{{ lname }}</option>
           {% else %}
           <option value="{{ lkey }}/{{ lname }}">{{ lname }}</option>
@@ -66,7 +66,7 @@
     <div class="wrap">
       <div class="button-bar">
         <a class="ui-button ui-widget ui-corner-all" href="#" id="lang">
-          <img src="static/img/{{ lang }}.png" alt="{{ lang_name }}" title="{{ lang_name }} (change)">
+          <img src="static/img/{{ LANG }}.png" alt="{{ LANG_NAME }}" title="{{ LANG_NAME }} (change)">
         </a>
         <a class="ui-button ui-widget ui-corner-all" href="#" id="new">
           <img src="static/img/new.png" alt="new" title="Add file">
