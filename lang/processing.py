@@ -10,7 +10,7 @@ class CoWrun (_CoWrun) :
         super().add_source(tmp, self.sketchbook / path, text)
     def add_makefile (self, tmp) :
         cmd = f"{self.CFG.LANG.PROCESSING.CMD} --sketch={self.sketchbook} --run"
-        with (tmp / "run.sh").open("w") as run :
+        with (tmp / "run.sh").open("w", encoding="utf-8", errors="replace") as run :
             run.write(f"echo -e '{self.CFG.COW.RUN_BANNER}'\n"
                       f"echo -e '{self.CFG.COW.MAKE_PROMPT} {cmd}'\n"
                       f"{cmd}\n"
@@ -18,7 +18,7 @@ class CoWrun (_CoWrun) :
                       f"echo -e '{self.CFG.COW.END_BANNER}'\n"
                       f"read\n"
                       f"exit $STATUS\n")
-        with (tmp / "Makefile").open("w") as make :
+        with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
             make.write("all:\n"
                        "\t@bash run.sh\n")
 

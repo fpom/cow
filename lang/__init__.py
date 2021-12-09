@@ -23,10 +23,10 @@ class CoWrun (Thread) :
         self.spawn(tmp)
         self.start()
     def add_source (self, tmp, path, text) :
-        with (tmp / path).open("w") as out :
+        with (tmp / path).open("w", encoding="utf-8", errors="replace") as out :
             out.write(text)
     def add_makefile (self, tmp) :
-        with (tmp / "Makefile").open("w") as make :
+        with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
             make.write("all:\n"
                        "\t@exit 1\n")
     # match ttyd output

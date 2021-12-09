@@ -21,7 +21,7 @@ class CoWrun (_CoWrun) :
         self._lf.update(lf)
         self._cf[path] = cf
     def add_makefile (self, tmp) :
-        with (tmp / "Makefile").open("w") as make :
+        with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
             make.write("all:"
                        "\n\t"
                        f"@echo -e '{self.CFG.COW.GCC_BANNER}'"
