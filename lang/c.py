@@ -28,6 +28,8 @@ class CoWrun (_CoWrun) :
                        "\n")
             obj_files = []
             for path in self.source :
+                if not path.suffix.lower() == ".c" :
+                    continue
                 cf = self._cf[path]
                 objpath = path.with_suffix(".o")
                 obj_files.append(str(objpath))
