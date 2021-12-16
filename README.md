@@ -49,6 +49,9 @@ CoW supports C through [GCC](http://gcc.gnu.org), with additional features:
    to capture as many errors as possible
  - customisable compilation: use `// gcc: --your-flags` or `// ldd: --more-flags` 
    in the source code to append compilation/link flags
+ - pass command-line arguments: use `// arg: my argv` in the source code
+ - set environment variables: use `// env: NAME=VALUE` in the source code,
+   several times if needed
 
 ### Processing
 
