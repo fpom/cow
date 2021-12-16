@@ -7,9 +7,13 @@ from . import CoWrun as _CoWrun, CoWzip as _CoWzip
 class CoWrun (_CoWrun) :
     _gcc_opt = re.compile("^//\s*gcc\s*:\s*(.+)$", re.I|re.M)
     _ldd_opt = re.compile("^//\s*ldd\s*:\s*(.+)$", re.I|re.M)
+    _arg_opt = re.compile("^//\s*arg\s*:\s*(.+)$", re.I|re.M)
+    _env_opt = re.compile("^//\s*env\s*:\s*(.+)$", re.I|re.M)
     def __init__ (self, source) :
         self._cf = {}
         self._lf = set()
+        self.argv = ""
+        self.envt = {}
         super().__init__(source)
     def add_source (self, tmp, path, text) :
         super().add_source(tmp, path, text)
@@ -20,6 +24,14 @@ class CoWrun (_CoWrun) :
             lf.update(shlex.split(match))
         self._lf.update(lf)
         self._cf[path] = cf
+        for match in self._arg_opt.findall(text) :
+            self.argv = match.strip()
+        for match in self._env_opt.findall(text) :
+            try :
+                key, val = match.split("=", 1)
+            except :
+                continue
+            self.envt[key.strip()] = val.strip()
     def add_makefile (self, tmp) :
         with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
             make.write("all:"
@@ -38,6 +50,10 @@ class CoWrun (_CoWrun) :
                            "\n\t"
                            f"{self.CFG.LANG.C.CMD} {path} -o {objpath}"
                            "\n")
+            env = "  ".join(f"{key}={shlex.join([val])}"
+                            for key, val in self.envt.items())
+            if env :
+                env += " "
             make.write("\t"
                        f"@echo -ne '{self.CFG.COW.MAKE_PROMPT}'"
                        "\n\t"
@@ -47,7 +63,7 @@ class CoWrun (_CoWrun) :
                        "\n\t"
                        f"@echo -ne '{self.CFG.COW.MAKE_PROMPT}'"
                        "\n\t"
-                       f"./a.out"
+                       f"{env}./a.out {self.argv}"
                        "\n")
 
 class CoWzip (_CoWzip) :
