@@ -14,7 +14,6 @@ class CoWrun (_CoWrun) :
         self._cf = {}
         self._lf = set()
         self.argv = ""
-        self.envt = {}
         super().__init__(source)
     def add_source (self, tmp, path, text) :
         super().add_source(tmp, path, text)
@@ -31,10 +30,13 @@ class CoWrun (_CoWrun) :
             self.make = match.strip()
         for match in self._env_opt.findall(text) :
             try :
-                key, val = match.split("=", 1)
+                key, val = match.strip().split("=", 1)
             except :
                 continue
-            self.envt[key.strip()] = val.strip()
+            if not val :
+                self.env.pop(key.strip(), None)
+            else :
+                self.env[key.strip()] = val
     def add_makefile (self, tmp) :
         with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
             make.write("all:"
@@ -53,10 +55,6 @@ class CoWrun (_CoWrun) :
                            "\n\t"
                            f"{self.CFG.LANG.C.CMD} {path} -o {objpath}"
                            "\n")
-            env = "  ".join(f"{key}={shlex.join([val])}"
-                            for key, val in self.envt.items())
-            if env :
-                env += " "
             make.write("\t"
                        f"@echo -ne '{self.CFG.COW.MAKE_PROMPT}'"
                        "\n\t"
@@ -66,7 +64,7 @@ class CoWrun (_CoWrun) :
                        "\n\t"
                        f"@echo -ne '{self.CFG.COW.MAKE_PROMPT}'"
                        "\n\t"
-                       f"{env}./a.out {self.argv}"
+                       f"./a.out {self.argv}"
                        "\n")
 
 class CoWzip (_CoWzip) :

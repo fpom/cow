@@ -14,6 +14,7 @@ class CoWrun (Thread) :
         self.tmp = TemporaryDirectory(dir=self.CFG.COW.TMPDIR)
         self.url = self.err = None
         self.make = f"make; echo -e '{self.CFG.COW.END_BANNER}'; read"
+        self.env = dict(os.environ)
         self.source = []
         tmp = Path(self.tmp.name)
         for path, text in source.items() :
@@ -38,7 +39,6 @@ class CoWrun (Thread) :
         # start ttyd
         key = token_urlsafe(10)
         port = None
-        env = dict(os.environ)
         while port is None :
             # random port withing [49152;65535]
             _port = 49152 + randbelow(16385)
@@ -55,7 +55,7 @@ class CoWrun (Thread) :
                               "--noroot",
                               "bash", "-c",
                               self.make],
-                             stdout=PIPE, stderr=STDOUT, cwd=tmp, env=env,
+                             stdout=PIPE, stderr=STDOUT, cwd=tmp, env=self.env,
                              encoding="utf-8", errors="replace")
             for line in self.sub.stdout :
                 match = self._ttyd_line.match(line.strip())
