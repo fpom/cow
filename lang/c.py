@@ -9,6 +9,7 @@ class CoWrun (_CoWrun) :
     _ldd_opt = re.compile("^//\s*ldd\s*:\s*(.+)$", re.I|re.M)
     _arg_opt = re.compile("^//\s*arg\s*:\s*(.+)$", re.I|re.M)
     _env_opt = re.compile("^//\s*env\s*:\s*(.+)$", re.I|re.M)
+    _run_opt = re.compile("^//\s*run\s*:\s*(.+)$", re.I|re.M)
     def __init__ (self, source) :
         self._cf = {}
         self._lf = set()
@@ -26,6 +27,8 @@ class CoWrun (_CoWrun) :
         self._cf[path] = cf
         for match in self._arg_opt.findall(text) :
             self.argv = match.strip()
+        for match in self._run_opt.findall(text) :
+            self.make = match.strip()
         for match in self._env_opt.findall(text) :
             try :
                 key, val = match.split("=", 1)

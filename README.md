@@ -52,6 +52,7 @@ CoW supports C through [GCC](http://gcc.gnu.org), with additional features:
  - pass command-line arguments: use `// arg: my argv` in the source code
  - set environment variables: use `// env: NAME=VALUE` in the source code,
    several times if needed
+ - run arbitrary commands instead of `make`: use `// run: command` in the source code
 
 ### Processing
 

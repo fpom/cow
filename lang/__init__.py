@@ -13,6 +13,7 @@ class CoWrun (Thread) :
         # save files to temp dictectory
         self.tmp = TemporaryDirectory(dir=self.CFG.COW.TMPDIR)
         self.url = self.err = None
+        self.make = f"make; echo -e '{self.CFG.COW.END_BANNER}'; read"
         self.source = []
         tmp = Path(self.tmp.name)
         for path, text in source.items() :
@@ -53,7 +54,7 @@ class CoWrun (Thread) :
                               "--private=.",
                               "--noroot",
                               "bash", "-c",
-                              f"make; echo -e '{self.CFG.COW.END_BANNER}'; read"],
+                              self.make],
                              stdout=PIPE, stderr=STDOUT, cwd=tmp, env=env,
                              encoding="utf-8", errors="replace")
             for line in self.sub.stdout :
