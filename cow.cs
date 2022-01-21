@@ -98,8 +98,6 @@ create =
                 Create : create.do
                 Cancel : () ->
                     create.dialog.dialog("close")
-            close : () ->
-                create.form[0].reset()
         create.form = create.dialog.find("form").on("submit", create.on_submit)
         $("#new").on("click", create.on_click)
 
@@ -125,8 +123,6 @@ rename =
                 Rename : rename.do
                 Cancel : () ->
                     rename.dialog.dialog("close")
-            close : () ->
-                rename.form[0].reset()
         rename.form = rename.dialog.find("form").on("submit", rename.on_submit)
         $("#rename").on("click", rename.on_click)
 

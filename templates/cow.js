@@ -132,9 +132,6 @@
           Cancel: function() {
             return create.dialog.dialog("close");
           }
-        },
-        close: function() {
-          return create.form[0].reset();
         }
       });
       create.form = create.dialog.find("form").on("submit", create.on_submit);
@@ -169,9 +166,6 @@
           Cancel: function() {
             return rename.dialog.dialog("close");
           }
-        },
-        close: function() {
-          return rename.form[0].reset();
         }
       });
       rename.form = rename.dialog.find("form").on("submit", rename.on_submit);
