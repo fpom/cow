@@ -38,6 +38,11 @@ class CoWrun (_CoWrun) :
             else :
                 self.env[key.strip()] = val
     def add_makefile (self, tmp) :
+        if any("-pthread" in cf for cf in self._cf.values()) :
+            self._lf.add("-pthread")
+        if "-pthread" in self._lf :
+            for cf in self._cf.values() :
+                cf.add("-pthread")
         with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
             make.write("all:"
                        "\n\t"
@@ -53,7 +58,7 @@ class CoWrun (_CoWrun) :
                 make.write("\t"
                            f"@echo -ne '{self.CFG.COW.MAKE_PROMPT}'"
                            "\n\t"
-                           f"{self.CFG.LANG.C.CMD} {path} -o {objpath}"
+                           f"{self.CFG.LANG.C.CMD} {' '.join(cf)} {path} -o {objpath}"
                            "\n")
             make.write("\t"
                        f"@echo -ne '{self.CFG.COW.MAKE_PROMPT}'"
