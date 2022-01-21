@@ -83,6 +83,7 @@
     init: function() {
       lang.dialog = $("#lang-dialog-confirm").dialog({
         autoOpen: false,
+        closeOnEscape: true,
         resizable: false,
         height: "auto",
         width: 400,
@@ -124,6 +125,7 @@
       create.field = $("#create-field");
       create.dialog = $("#create-dialog-form").dialog({
         autoOpen: false,
+        closeOnEscape: true,
         height: "auto",
         width: 400,
         modal: true,
@@ -134,7 +136,7 @@
           }
         }
       });
-      create.form = create.dialog.find("form").on("submit", create.on_submit);
+      create.dialog.find("form").on("submit", create.on_submit);
       return $("#new").on("click", create.on_click);
     }
   };
@@ -158,6 +160,7 @@
       rename.field = $("#rename-field");
       rename.dialog = $("#rename-dialog-form").dialog({
         autoOpen: false,
+        closeOnEscape: true,
         height: "auto",
         width: 400,
         modal: true,
@@ -168,7 +171,7 @@
           }
         }
       });
-      rename.form = rename.dialog.find("form").on("submit", rename.on_submit);
+      rename.dialog.find("form").on("submit", rename.on_submit);
       return $("#rename").on("click", rename.on_click);
     }
   };
@@ -188,6 +191,7 @@
     init: function() {
       remove.dialog = $("#remove-dialog-confirm").dialog({
         autoOpen: false,
+        closeOnEscape: true,
         resizable: false,
         height: "auto",
         width: 400,
@@ -217,6 +221,7 @@
     init: function() {
       download.dialog = $("#download-dialog-message").dialog({
         autoOpen: false,
+        closeOnEscape: true,
         resizable: false,
         height: "auto",
         width: 400,
@@ -287,6 +292,7 @@
     init: function() {
       run.dialog = $("#run-dialog-message").dialog({
         autoOpen: false,
+        closeOnEscape: true,
         resizable: false,
         height: "auto",
         width: 400,

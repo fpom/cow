@@ -61,6 +61,7 @@ lang =
     init : () ->
         lang.dialog = $("#lang-dialog-confirm").dialog
             autoOpen : false
+            closeOnEscape : true
             resizable : false
             height : "auto"
             width : 400
@@ -91,6 +92,7 @@ create =
         create.field = $("#create-field")
         create.dialog = $("#create-dialog-form").dialog
             autoOpen : false
+            closeOnEscape : true
             height : "auto"
             width : 400
             modal : true
@@ -98,7 +100,7 @@ create =
                 Create : create.do
                 Cancel : () ->
                     create.dialog.dialog("close")
-        create.form = create.dialog.find("form").on("submit", create.on_submit)
+        create.dialog.find("form").on("submit", create.on_submit)
         $("#new").on("click", create.on_click)
 
 rename =
@@ -116,6 +118,7 @@ rename =
         rename.field = $("#rename-field")
         rename.dialog = $("#rename-dialog-form").dialog
             autoOpen : false
+            closeOnEscape : true
             height : "auto"
             width : 400
             modal : true
@@ -123,7 +126,7 @@ rename =
                 Rename : rename.do
                 Cancel : () ->
                     rename.dialog.dialog("close")
-        rename.form = rename.dialog.find("form").on("submit", rename.on_submit)
+        rename.dialog.find("form").on("submit", rename.on_submit)
         $("#rename").on("click", rename.on_click)
 
 remove =
@@ -138,6 +141,7 @@ remove =
     init : () ->
         remove.dialog = $("#remove-dialog-confirm").dialog
             autoOpen : false
+            closeOnEscape : true
             resizable : false
             height : "auto"
             width : 400
@@ -157,6 +161,7 @@ download =
     init : () ->
         download.dialog = $("#download-dialog-message").dialog
             autoOpen : false
+            closeOnEscape : true
             resizable : false
             height : "auto"
             width : 400
@@ -207,6 +212,7 @@ run =
     init : () ->
         run.dialog = $("#run-dialog-message").dialog
             autoOpen : false
+            closeOnEscape : true
             resizable : false
             height : "auto"
             width : 400
