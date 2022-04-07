@@ -161,6 +161,8 @@ def load (cfg) :
         lng = LANG[name] = cfg.__class__({(f"LANG_{k}" if k != "LANG" else k) : v
                                           for k, v in items.items()})
         ext = lng["LANG_EXT"] = [e.strip() for e in lng["LANG_EXT"].split(",")]
+        if "LANG_MODENAME" not in lng :
+            lng["LANG_MODENAME"] = Path(lng["LANG_MODE"]).stem
         lng.update(run=mod.CoWrun,
                    zip=mod.CoWzip)
     lang_all = {name : conf["LANG_NAME"] for name, conf in LANG.items()}

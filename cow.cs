@@ -28,7 +28,7 @@ editor =
             lineNumbers : true
             autofocus : true
             matchBrackets : true
-            mode : "text/x-csrc")
+            mode : "{{ LANG_MODENAME }}")
         editor.instances[name] = ed
         $("#tabs").tabs("refresh")
         $("#tabs").tabs("option", "active", -1)

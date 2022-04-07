@@ -38,7 +38,7 @@
         lineNumbers: true,
         autofocus: true,
         matchBrackets: true,
-        mode: "text/x-csrc"
+        mode: "{{ LANG_MODENAME }}"
       });
       editor.instances[name] = ed;
       $("#tabs").tabs("refresh");
