@@ -71,6 +71,19 @@ CoW supports [Python 3](http://www.python.org)
  - no third party packages installed appart from what is installed on the host system
  - in a multiple-file project, the first file is assumed to be the main program
 
+### Human Resource Machine
+
+CoW supports [Human Resource Machine](http://tomorrowcorporation.com/humanresourcemachine) though [hrm-interpreter](http://pypi.org/project/hrm-interpreter)
+
+ - text/emoji based interpreter of the HRM language
+ - in a multiple-file project, only the first file is interpreted
+ - inbox is randomly generated, by default with only numbers,
+   customisable using special comments:
+   - `-- inbox: 1,A,2,B,3` to provide a specific inbox
+   - `-- isize: 5` to specify the size of generated inbox
+   - `-- alpha: yes` to allow alphabetic characters in the generated inbox
+   - `-- tiles: 0,1,B,U,G` to specify the initial content is the floor tiles
+
 ### adding new languages
 
 Just look at `lang/python.py` and `lang/c.py` to see how they are
@@ -87,6 +100,8 @@ launched from the `Makefile`).
    one archive (for instance, Python/C do not need any change, while
    Processing need to put files in a subdirectory named from one of
    the source files)
+ - add a 32x32 icon as `static/img/YOUR_LANG.png`
+ - edit `cow.ini` to add an entry for you language
 
 ## Installation
 
@@ -103,6 +118,7 @@ Dependencies:
    - C currently required GCC, but this may change
    - Python is OK because CoW need Python too
    - Processing needs `processing-java` CLI
+   - HRM language needs [hrm-interpreter](http://pypi.org/project/hrm-interpreter)
  - for CAS authentication: [Flask-CAS](http://pypi.org/project/Flask-CAS)
  - for production: an Apache or NGINX + uWSGI server
  - for development: [colored tracebacks](http://pypi.org/project/colored-traceback)

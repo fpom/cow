@@ -31,7 +31,7 @@ CodeMirror.defineSimpleMode('hrm', {
     // Label name.
     {
       regex: /([A-Z]+)/i,
-      token: ['string'],
+      token: ['variable'],
     },
   ],
   // The comment block.
