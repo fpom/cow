@@ -13,7 +13,6 @@ User features:
  - automatically compile programs
  - execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd),
    or (unstable) in a X11 terminal thanks to [Xpra](http://github.com/Xpra-org/xpra)
-   (Xpra support is still experimental, see below)
  - possible interaction with the program
 
 ![CoW in action](https://raw.githubusercontent.com/fpom/cow/main/misc/demo.gif)
@@ -35,8 +34,6 @@ Development guidelines:
 Bugs and limitations:
 
  - young project: expect bugs, regressions, and incompatible updates
- - `xpra` does not work behind a reverse proxy, so it cannot be used
-   in production
 
 ## Languages supported
 
@@ -60,8 +57,6 @@ CoW supports [Processing 3](http://processing.org) (Java version)
 
  - in a multiple-file project, the first file give its name to the sketchbook
  - running a project is _slooooooowww_ because `xpra` takes a while to start
- - using `xpra` currently does not work behind a reverse proxy, so
-   **Processing language is disabled by default**
 
 ### Python
 
@@ -173,7 +168,7 @@ Then create `/home/cow/cow.ini` with:
 TMPDIR = /home/cow/tmp
 SECRET_KEY = a random string to secure cookies
 TTYD_URL = https://your.hostname/ttyd/{port}/{key}/
-# XPRA_URL may be set as well but it does not work currently
+XPRA_URL = https://cow.ibisc.univ-evry.fr/xpra/{port}/?password={password}
 ```
 
 Note how `TTYD_URL` is configured so that the HTTP server can forward
@@ -203,8 +198,18 @@ Finally, create a site for Apache, eg, `/etc/apache2/sites-available/cow.conf`:
   ProxyWebsocketFallbackToProxyHttp off
 
   RewriteEngine on
-  RewriteRule    ^/ttyd/(\d*)/([^/]*)/ws$   ws://localhost:$1/$2/ws [P,L]
-  RewriteRule    ^/ttyd/(\d*)/(.*)$         http://localhost:$1/$2  [P,L]
+  
+  # redirect connections to ttyd
+  RewriteRule  ^/ttyd/(\d*)/([^/]*)/ws$  ws://localhost:$1/$2/ws [P,L]
+  RewriteRule  ^/ttyd/(\d*)/(.*)$        http://localhost:$1/$2  [P,L]
+
+  # redirect connections to xpra
+  RewriteCond  %{HTTP:UPGRADE}     ^WebSocket$                            [NC]
+  RewriteCond  %{HTTP:CONNECTION}  ^Upgrade$                              [NC]
+  RewriteRule  ^/xpra/(\d*)/(.*)$  ws://localhost:$1/$2?%{QUERY_STRING}   [P,L]
+  RewriteRule  ^/xpra/(\d*)/(.*)$  http://localhost:$1/$2?%{QUERY_STRING} [P,L]
+  ProxyPass         /xpra/\d*/[^/]*/  ws://localhost
+  ProxyPassReverse  /xpra/\d*/[^/]*/  ws://localhost
       
   <Directory /var/www>
     WSGIProcessGroup cow
@@ -288,14 +293,6 @@ server {
   }
 }
 ```
-
-### Xpra in production
-
-In principle, `xpra` could be forwarded by a reverse proxy just like
-`ttyd`. But the problem is to forward it authentication. So far, I've
-tried to use `--tcp-auth=env` and `--auth=password:value=PASSWORD`, in
-which case the password can be passed through the query string
-`?password=PASSWORD`. But this does not work so far, I'm working on it.
 
 ## Licence
 
