@@ -89,7 +89,7 @@ class CoWrun (Thread) :
 class CoWrunX (CoWrun) :
     # match xpra output
     _xpra_fail = re.compile(r"^failed to setup tcp socket.*Address already in use$")
-    _xpra_start = re.compile(r"^.* started command '.*' with pid \d*$")
+    _xpra_ready = re.compile(r"^.* xpra is ready\.$")
     def spawn (self, tmp) :
         self.timeout = self.CFG.COW.XPRA_TIMEOUT
         # start xpra
@@ -127,7 +127,7 @@ class CoWrunX (CoWrun) :
                     # failed to bind port
                     self.sub.kill()
                     break
-                elif self._xpra_start.match(_line) :
+                elif self._xpra_ready.match(_line) :
                     port = _port
                     self.url = self.CFG.COW.XPRA_URL.format(port=port, password=password)
                     break
