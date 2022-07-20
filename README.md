@@ -34,6 +34,7 @@ Development guidelines:
 Bugs and limitations:
 
  - young project: expect bugs, regressions, and incompatible updates
+ - `nginx` configuration for `xpra` not (yet) available
 
 ## Languages supported
 
@@ -114,7 +115,8 @@ Dependencies:
    - Python is OK because CoW need Python too
    - Processing needs `processing-java` CLI
    - HRM language needs [hrm-interpreter](http://pypi.org/project/hrm-interpreter)
- - for CAS authentication: [Flask-CAS](http://pypi.org/project/Flask-CAS)
+ - for CAS authentication: [flask-cas-ng](http://pypi.org/project/flask-cas-ng)
+   or [Flask-CAS](http://pypi.org/project/Flask-CAS)
  - for production: an Apache or NGINX + uWSGI server
  - for development: [colored tracebacks](http://pypi.org/project/colored-traceback)
 
@@ -168,7 +170,7 @@ Then create `/home/cow/cow.ini` with:
 TMPDIR = /home/cow/tmp
 SECRET_KEY = a random string to secure cookies
 TTYD_URL = https://your.hostname/ttyd/{port}/{key}/
-XPRA_URL = https://cow.ibisc.univ-evry.fr/xpra/{port}/?password={password}
+XPRA_URL = https://your.hostname/xpra/{port}/?password={password}
 ```
 
 Note how `TTYD_URL` is configured so that the HTTP server can forward
