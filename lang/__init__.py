@@ -10,6 +10,11 @@ from secrets import token_urlsafe, randbelow
 class CoWrun (Thread) :
     def __init__ (self, source) :
         super().__init__()
+        # set language
+        lang = self.__class__.__module__
+        if lang.startswith("lang.") :
+            lang = lang[5:]
+        self.CFG["MYLANG"] = lang.upper()
         # save files to temp dictectory
         self.tmp = TemporaryDirectory(dir=self.CFG.COW.TMPDIR)
         self.url = self.err = None
@@ -27,6 +32,17 @@ class CoWrun (Thread) :
     def add_source (self, tmp, path, text) :
         with (tmp / path).open("w", encoding="utf-8", errors="replace") as out :
             out.write(text)
+        cmt = re.escape(self.CFG.LANG[self.CFG.MYLANG].COMMENT)
+        res = re.compile(fr"^{cmt}FILE: (.*)\n{cmt}DATA: data:([^;]+);([^,]+),(.*)$",
+                         re.M)
+        for match in res.finditer(text) :
+            name, mime, base, data = match.group(1, 2, 3, 4)
+            tgt = (tmp / path).parent / name
+            with tgt.open("wb") as out :
+                if base == "base64" :
+                    out.write(base64.b64decode(data))
+                else :
+                    raise ValueError(f"could not handle encoding {base}")
     def add_makefile (self, tmp) :
         with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
             make.write("all:\n"
@@ -152,7 +168,6 @@ class CoWzip (object) :
 
 def load (cfg) :
     LANG = cfg.__class__()
-    langs = {}
     for name, items in cfg.LANG.items() :
         if not items["ENABLED"] :
             continue
@@ -160,7 +175,7 @@ def load (cfg) :
         mod.CoWrun.CFG = mod.CoWzip.CFG = cfg
         lng = LANG[name] = cfg.__class__({(f"LANG_{k}" if k != "LANG" else k) : v
                                           for k, v in items.items()})
-        ext = lng["LANG_EXT"] = [e.strip() for e in lng["LANG_EXT"].split(",")]
+        lng["LANG_EXT"] = [e.strip() for e in lng["LANG_EXT"].split(",")]
         if "LANG_MODENAME" not in lng :
             lng["LANG_MODENAME"] = Path(lng["LANG_MODE"]).stem
         lng.update(run=mod.CoWrun,

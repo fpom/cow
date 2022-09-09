@@ -40,9 +40,27 @@
         matchBrackets: true,
         mode: "{{ LANG_MODENAME }}"
       });
+      ed.on("drop", editor.on_drop);
       editor.instances[name] = ed;
       $("#tabs").tabs("refresh");
       return $("#tabs").tabs("option", "active", -1);
+    },
+    on_drop: function(editor, event) {
+      var file, i, len, reader, ref, results;
+      event.preventDefault();
+      ref = event.dataTransfer.files;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        file = ref[i];
+        reader = new FileReader();
+        reader.readAsDataURL(file);
+        results.push(reader.onload = function() {
+          var txt;
+          txt = editor.getValue();
+          return editor.setValue(txt + "\n{{ LANG_COMMENT }}FILE: " + file.name + "\n{{ LANG_COMMENT }}DATA: " + reader.result);
+        });
+      }
+      return results;
     },
     remove: function() {
       var info;

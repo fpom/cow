@@ -14,7 +14,8 @@ User features:
  - execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd),
    or (unstable) in a X11 terminal thanks to [Xpra](http://github.com/Xpra-org/xpra)
  - possible interaction with the program
-
+ - embed arbitrary resource files through drag-n-drop
+ 
 ![CoW in action](https://raw.githubusercontent.com/fpom/cow/main/misc/demo.gif)
 
 Host features:
@@ -35,6 +36,19 @@ Bugs and limitations:
 
  - young project: expect bugs, regressions, and incompatible updates
  - `nginx` configuration for `xpra` not (yet) available
+
+## Resource files
+
+Say a program needs a file `image.jpg`, this file must exist on the server when the program is executed.
+To do so, the user has to drag-n-drop their file `image.jpg` onto the source code area in the editor.
+This inserts at the end of the source code special comments like:
+
+    ```C
+    //FILE: image.jpg
+    //DATA: data:image/jpeg;base64,...
+    ```
+
+When the source files are loaded onto the server for execution, `CoW` will extract this information and create file `image.jpg` alongside with the source file in which it has been embedded.
 
 ## Languages supported
 

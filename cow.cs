@@ -29,9 +29,21 @@ editor =
             autofocus : true
             matchBrackets : true
             mode : "{{ LANG_MODENAME }}")
+        ed.on("drop", editor.on_drop)
         editor.instances[name] = ed
         $("#tabs").tabs("refresh")
         $("#tabs").tabs("option", "active", -1)
+    on_drop : (editor, event) ->
+        event.preventDefault()
+        for file in event.dataTransfer.files
+            reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () ->
+                txt = editor.getValue()
+                editor.setValue("""#{txt}
+                                {{ LANG_COMMENT }}FILE: #{file.name}
+                                {{ LANG_COMMENT }}DATA: #{reader.result}
+                                """)
     remove : () ->
         info = editor.active()
         if not editor.instances[info.filename]?
