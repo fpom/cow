@@ -15,16 +15,16 @@ class CoWrun (_CoWrun) :
         if getattr(self, "main", None) is None :
             self.main = path
         for match in self._inbox.findall(text) :
-            self.flags["-i"] = match.group(1).strip()
+            self.flags["-i"] = match.strip()
         for match in self._isize.findall(text) :
-            self.flags["-s"] = match.group(1).strip()
+            self.flags["-s"] = match.strip()
         for match in self._alpha.findall(text) :
-            if match.group(1).strip().lower() in ("y", "yes", "true", "1") :
+            if match.strip().lower() in ("y", "yes", "true", "1") :
                 self.flags.pop("-n", None)
             else :
                 self.flags["-n"] = None
         for match in self._tiles.findall(text) :
-            self.flags["-t"] = match.group(1).strip()
+            self.flags["-t"] = match.strip()
     def add_makefile (self, tmp) :
         flags = " ".join((f"{k} {v}" if v else k) for k, v in self.flags.items())
         with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
