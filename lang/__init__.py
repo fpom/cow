@@ -18,7 +18,8 @@ class CoWrun (Thread) :
         # save files to temp dictectory
         self.tmp = TemporaryDirectory(dir=self.CFG.COW.TMPDIR)
         self.url = self.err = None
-        self.make = f"make; echo -e '{self.CFG.COW.END_BANNER}'; read"
+        if getattr(self, "make", None) is None :
+            self.make = f"make; echo -e '{self.CFG.COW.END_BANNER}'; read"
         self.env = dict(os.environ)
         self.source = []
         tmp = Path(self.tmp.name)
@@ -103,6 +104,9 @@ class CoWrun (Thread) :
                 rmtree(self.tmp.name, ignore_errors=True)
 
 class CoWrunX (CoWrun) :
+    def __init__ (self, source) :
+        self.make = "make"
+        super().__init__(source)
     # match xpra output
     _xpra_fail = re.compile(r"^failed to setup tcp socket.*Address already in use$")
     _xpra_ready = re.compile(r"^.* xpra is ready\.$")
@@ -113,8 +117,8 @@ class CoWrunX (CoWrun) :
         password = token_urlsafe(10)
         env = dict(os.environ, XPRA_PASSWORD=password)
         html5 = Path("xpra-html5").resolve()
-        child = ("firejail --quiet --private=. --noroot"
-                 " xterm -fa Monospace -fs 16 -e make")
+        child = (f"firejail --quiet --private=. --noroot"
+                 f" xterm -fa Monospace -fs 16 -e {self.make}")
         while port is None :
             # random port withing [49152;65535]
             _port = 49152 + randbelow(16385)
