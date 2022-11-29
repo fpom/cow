@@ -14,7 +14,7 @@ CodeMirror.defineSimpleMode('hrm', {
     },
     // Command.
     {
-      regex: /(inbox|outbox|copyfrom|copyto|add|sub|bumpup|bumpdn|jump|jumpz|jumpn)/i,
+      regex: /(inbox|outbox|copyfrom|copyto|add|sub|bumpup|bumpdn|jumpn|jumpz|jump)/i,
       token: ['builtin']
     },
     // Int
