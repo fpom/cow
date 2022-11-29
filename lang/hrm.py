@@ -6,6 +6,7 @@ class CoWrun (_CoWrun) :
     _inbox = re.compile("^--\s*inbox\s*:\s*(.+)$", re.I|re.M)
     _isize = re.compile("^--\s*isize\s*:\s*(.+)$", re.I|re.M)
     _alpha = re.compile("^--\s*alpha\s*:\s*(.+)$", re.I|re.M)
+    _neg = re.compile("^--\s*neg\s*:\s*(.+)$", re.I|re.M)
     _tiles = re.compile("^--\s*tiles\s*:\s*(.+)$", re.I|re.M)
     def __init__ (self, source) :
         self.flags = {"-n" : None}
@@ -23,6 +24,9 @@ class CoWrun (_CoWrun) :
                 self.flags.pop("-n", None)
             else :
                 self.flags["-n"] = None
+        for match in self._neg.findall(text) :
+            if match.strip().lower() in ("n", "no", "false", "0") :
+                self.flags["-N"] = None
         for match in self._tiles.findall(text) :
             self.flags["-t"] = match.strip()
     def add_makefile (self, tmp) :
