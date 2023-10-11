@@ -3,11 +3,12 @@ import re
 from . import CoWrun as _CoWrun, CoWzip as _CoWzip
 
 class CoWrun (_CoWrun) :
-    _inbox = re.compile("^--\s*inbox\s*:\s*(.+)$", re.I|re.M)
-    _isize = re.compile("^--\s*isize\s*:\s*(.+)$", re.I|re.M)
-    _alpha = re.compile("^--\s*alpha\s*:\s*(.+)$", re.I|re.M)
-    _neg = re.compile("^--\s*neg\s*:\s*(.+)$", re.I|re.M)
-    _tiles = re.compile("^--\s*tiles\s*:\s*(.+)$", re.I|re.M)
+    _inbox = re.compile(r"^--\s*inbox\s*:\s*(.+)$", re.I|re.M)
+    _isize = re.compile(r"^--\s*isize\s*:\s*(.+)$", re.I|re.M)
+    _alpha = re.compile(r"^--\s*alpha\s*:\s*(.+)$", re.I|re.M)
+    _neg = re.compile(r"^--\s*neg\s*:\s*(.+)$", re.I|re.M)
+    _tiles = re.compile(r"^--\s*tiles\s*:\s*(.+)$", re.I|re.M)
+    _gui = re.compile(r"^--\s*gui\s*:\s*(.+)$", re.I|re.M)
     def __init__ (self, source) :
         self.flags = {"-n" : None}
         super().__init__(source)
@@ -29,6 +30,9 @@ class CoWrun (_CoWrun) :
                 self.flags["-N"] = None
         for match in self._tiles.findall(text) :
             self.flags["-t"] = match.strip()
+        for match in self._gui.findall(text):
+            if match.strip().lower() in ("n", "no", "false", "0"):
+                self.flags["-G"] = None
     def add_makefile (self, tmp) :
         flags = " ".join((f"{k} {v}" if v else k) for k, v in self.flags.items())
         with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
