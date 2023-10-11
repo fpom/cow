@@ -33,6 +33,7 @@ class CoWrun (_CoWrun) :
         for match in self._gui.findall(text):
             if match.strip().lower() in ("n", "no", "false", "0"):
                 self.flags["-G"] = None
+                self.flags["-v"] = None
     def add_makefile (self, tmp) :
         flags = " ".join((f"{k} {v}" if v else k) for k, v in self.flags.items())
         with (tmp / "Makefile").open("w", encoding="utf-8", errors="replace") as make :
