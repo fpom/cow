@@ -185,8 +185,8 @@ download =
     on_done : (resp) ->
         if resp.status == "OK"
             link = $("<a id=\"zipdl\" download=\"#{ resp.filename }\" \
-                href=\"data:application/octet-stream;charset=utf-8;base64;\
-                ,#{ resp.data }\">#{ resp.filename }</a>")
+                href=\"data:application/octet-stream;base64,\
+                #{ resp.data }\">#{ resp.filename }</a>")
             $("#download-message").html(link)
             link.click () -> download.dialog.dialog("close")
             download.dialog.dialog("open")
