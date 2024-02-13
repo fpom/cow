@@ -24,13 +24,13 @@ CodeMirror.defineSimpleMode('hrm', {
     },
     // Label definition.
     {
-      regex: /([A-Z]+:)/i,
+      regex: /([A-Z][A-Z0-9]*:)/i,
       token: ['string'],
       indent: true
     },
     // Label name.
     {
-      regex: /([A-Z]+)/i,
+      regex: /([A-Z][A-Z0-9]*)/i,
       token: ['variable'],
     },
   ],
