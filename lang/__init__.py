@@ -68,6 +68,7 @@ class CoWrun (Thread) :
                               "-t", "titleFixed=CoW [run]",
                               "firejail",
                               "--quiet",
+                              "--allow-debuggers",
                               "--private=.",
                               "--noroot",
                               "bash", "-c",
