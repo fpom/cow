@@ -6,36 +6,36 @@ real Linux box without having to install anything.
 
 User features:
 
- - support several programming languages (see below)
- - edit multiple files
- - download files
- - full-featured editor thanks to [CodeMirror](http://codemirror.net)
- - automatically compile programs
- - execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd),
-   or (unstable) in a X11 terminal thanks to [Xpra](http://github.com/Xpra-org/xpra)
- - possible interaction with the program
- - embed arbitrary resource files through drag-n-drop
- 
+- support several programming languages (see below)
+- edit multiple files
+- download files
+- full-featured editor thanks to [CodeMirror](http://codemirror.net)
+- automatically compile programs
+- execution in a real terminal thanks to [ttyd](http://github.com/tsl0922/ttyd),
+  or (unstable) in a X11 terminal thanks to [Xpra](http://github.com/Xpra-org/xpra)
+- possible interaction with the program
+- embed arbitrary resource files through drag-n-drop
+
 ![CoW in action](https://raw.githubusercontent.com/fpom/cow/main/misc/demo.gif)
 
 Host features:
 
- - minimal installation/configuration
- - no files stored on server (except temporarily during compilation/execution)
- - user-code secured using [firejail](http://firejail.wordpress.com)
- - optional CAS authentication (more may be added as long as it'll be outside of CoW)
+- minimal installation/configuration
+- no files stored on server (except temporarily during compilation/execution)
+- user-code secured using [firejail](http://firejail.wordpress.com)
+- optional CAS authentication (more may be added as long as it'll be outside of CoW)
 
 Development guidelines:
 
- - keep CoW as simple as possible, with a small and simple code base
- - leverage established third-party projects to provide the most complex features
- - avoid using server as much as possible
- - protect the server from user's programs
+- keep CoW as simple as possible, with a small and simple code base
+- leverage established third-party projects to provide the most complex features
+- avoid using server as much as possible
+- protect the server from user's programs
 
 Bugs and limitations:
 
- - young project: expect bugs, regressions, and incompatible updates
- - `nginx` configuration for `xpra` not (yet) available
+- young project: expect bugs, regressions, and incompatible updates
+- `nginx` configuration for `xpra` not (yet) available
 
 ## Resource files
 
@@ -56,43 +56,43 @@ When the source files are loaded onto the server for execution, `CoW` will extra
 
 CoW supports C through [GCC](http://gcc.gnu.org), with additional features:
 
- - use ISO C11 standard
- - [get the maximum of GCC](http://airbus-seclab.github.io/c-compiler-security/)
-   to capture as many errors as possible
- - customisable compilation: use `// gcc: --your-flags` or `// ldd: --more-flags` 
-   in the source code to append compilation/link flags
- - pass command-line arguments: use `// arg: my argv` in the source code
- - set environment variables: use `// env: NAME=VALUE` in the source code,
-   several times if needed
- - run arbitrary commands instead of `make`: use `// run: command` in the source code
+- use ISO C11 standard
+- [get the maximum of GCC](http://airbus-seclab.github.io/c-compiler-security/)
+  to capture as many errors as possible
+- customisable compilation: use `// gcc: --your-flags` or `// ldd: --more-flags`
+  in the source code to append compilation/link flags
+- pass command-line arguments: use `// arg: my argv` in the source code
+- set environment variables: use `// env: NAME=VALUE` in the source code,
+  several times if needed
+- run arbitrary commands instead of `make`: use `// run: command` in the source code
 
 ### Processing
 
 CoW supports [Processing 3](http://processing.org) (Java version)
 
- - in a multiple-file project, the first file give its name to the sketchbook
- - running a project is _slooooooowww_ because `xpra` takes a while to start
+- in a multiple-file project, the first file give its name to the sketchbook
+- running a project is _slooooooowww_ because `xpra` takes a while to start
 
 ### Python
 
 CoW supports [Python 3](http://www.python.org)
 
- - execute in a text terminal (graphical interfaces will not work)
- - no third party packages installed appart from what is installed on the host system
- - in a multiple-file project, the first file is assumed to be the main program
+- execute in a text terminal (graphical interfaces will not work)
+- if Python interpreter is set as `uv run ...` then third party packages can be specified in the source code with special comment `# pip: onepackage otherpackage`, otherwise no third party packages can be installed appart from what is installed on the host system
+- in a multiple-file project, the first file is assumed to be the main program
 
 ### Human Resource Machine
 
 CoW supports [Human Resource Machine](http://tomorrowcorporation.com/humanresourcemachine) though [hrm-interpreter](http://pypi.org/project/hrm-interpreter)
 
- - text/emoji based interpreter of the HRM language
- - in a multiple-file project, only the first file is interpreted
- - inbox is randomly generated, by default with only numbers,
-   customisable using special comments:
-   - `-- inbox: 1,A,2,B,3` to provide a specific inbox
-   - `-- isize: 5` to specify the size of generated inbox
-   - `-- alpha: yes` to allow alphabetic characters in the generated inbox
-   - `-- tiles: 0,1,B,U,G` to specify the initial content is the floor tiles
+- text/emoji based interpreter of the HRM language
+- in a multiple-file project, only the first file is interpreted
+- inbox is randomly generated, by default with only numbers,
+  customisable using special comments:
+  - `-- inbox: 1,A,2,B,3` to provide a specific inbox
+  - `-- isize: 5` to specify the size of generated inbox
+  - `-- alpha: yes` to allow alphabetic characters in the generated inbox
+  - `-- tiles: 0,1,B,U,G` to specify the initial content is the floor tiles
 
 ### adding new languages
 
@@ -101,57 +101,57 @@ implemented, it should be easy to add you how language as long as it
 works on the CLI and can be called from a `Makefile` (or a script
 launched from the `Makefile`).
 
- - extend `lang.CoWrun` and overwrite:
-   - method `add_source` to handle the creation of one source file in
-     the project
-   - method `add_makefile` to handle the creation of a `Makefile` that
-     will compile and run the project
- - extend `lang.CoWzip` to adapt how a project files are zipped into
-   one archive (for instance, Python/C do not need any change, while
-   Processing need to put files in a subdirectory named from one of
-   the source files)
- - add a 32x32 icon as `static/img/YOUR_LANG.png`
- - edit `cow.ini` to add an entry for you language
+- extend `lang.CoWrun` and overwrite:
+  - method `add_source` to handle the creation of one source file in
+    the project
+  - method `add_makefile` to handle the creation of a `Makefile` that
+    will compile and run the project
+- extend `lang.CoWzip` to adapt how a project files are zipped into
+  one archive (for instance, Python/C do not need any change, while
+  Processing need to put files in a subdirectory named from one of
+  the source files)
+- add a 32x32 icon as `static/img/YOUR_LANG.png`
+- edit `cow.ini` to add an entry for you language
 
 ## Installation
 
 Dependencies:
 
- - [Python 3](http://python.org)
- - [Flask](http://flask.palletsprojects.com)
- - [Header as Dependencies](http://pypi.org/project/Headers-as-Dependencies)
- - [ttyd](http://github.com/tsl0922/ttyd)
- - [xpra](http://github.com/Xpra-org/xpra)
- - [firejail](http://firejail.wordpress.com)
- - a Linux box with `make` installed
- - a compiler/interpreter for the languages that need to be supported
-   - C currently required GCC, but this may change
-   - Python is OK because CoW need Python too
-   - Processing needs `processing-java` CLI
-   - HRM language needs [hrm-interpreter](http://pypi.org/project/hrm-interpreter)
- - for CAS authentication: [flask-cas-ng](http://pypi.org/project/flask-cas-ng)
-   or [Flask-CAS](http://pypi.org/project/Flask-CAS)
- - for production: an Apache or NGINX + uWSGI server
- - for development: [colored tracebacks](http://pypi.org/project/colored-traceback)
+- [Python 3](http://python.org)
+- [Flask](http://flask.palletsprojects.com)
+- [Header as Dependencies](http://pypi.org/project/Headers-as-Dependencies)
+- [ttyd](http://github.com/tsl0922/ttyd)
+- [xpra](http://github.com/Xpra-org/xpra)
+- [firejail](http://firejail.wordpress.com)
+- a Linux box with `make` installed
+- a compiler/interpreter for the languages that need to be supported
+  - C currently required GCC, but this may change
+  - Python is OK because CoW need Python too
+  - Processing needs `processing-java` CLI
+  - HRM language needs [hrm-interpreter](http://pypi.org/project/hrm-interpreter)
+- for CAS authentication: [flask-cas-ng](http://pypi.org/project/flask-cas-ng)
+  or [Flask-CAS](http://pypi.org/project/Flask-CAS)
+- for production: an Apache or NGINX + uWSGI server
+- for development: [colored tracebacks](http://pypi.org/project/colored-traceback)
 
 ### How it works
 
 In order to understand configuration, let's first explain how CoW works:
 
- - a Flask server exposes one page with the files editor
- - editing and managing files are performed on the client's browser
- - downloading uses the server to package the files into a zip archive
- - running code is performed by sending the source files to the Flask server on which:
-   - source code is saved to a temporary directory
-   - a `Makefile` is built
-   - `make` is launched, within `firejail`, within `ttyd` or `xpra`+`xterm`
-   - an URL is returned to the client so it opens a new window to the
-     `ttyd`/`xpra` terminal
+- a Flask server exposes one page with the files editor
+- editing and managing files are performed on the client's browser
+- downloading uses the server to package the files into a zip archive
+- running code is performed by sending the source files to the Flask server on which:
+  - source code is saved to a temporary directory
+  - a `Makefile` is built
+  - `make` is launched, within `firejail`, within `ttyd` or `xpra`+`xterm`
+  - an URL is returned to the client so it opens a new window to the
+    `ttyd`/`xpra` terminal
 
 There's two things to note here:
 
- - users must allow popups in their browser for CoW
- - `ttyd`/`xpra` must be reachable from the users' browser
+- users must allow popups in their browser for CoW
+- `ttyd`/`xpra` must be reachable from the users' browser
 
 This latter point is easy when CoW is run locally since the browser
 just connect to `localhost`. But on a server, most ports are usually
@@ -214,7 +214,7 @@ Finally, create a site for Apache, eg, `/etc/apache2/sites-available/cow.conf`:
   ProxyWebsocketFallbackToProxyHttp off
 
   RewriteEngine on
-  
+
   # redirect connections to ttyd
   RewriteRule  ^/ttyd/(\d*)/([^/]*)/ws$  ws://localhost:$1/$2/ws [P,L]
   RewriteRule  ^/ttyd/(\d*)/(.*)$        http://localhost:$1/$2  [P,L]
@@ -226,7 +226,7 @@ Finally, create a site for Apache, eg, `/etc/apache2/sites-available/cow.conf`:
   RewriteRule  ^/xpra/(\d*)/(.*)$  http://localhost:$1/$2?%{QUERY_STRING} [P,L]
   ProxyPass         /xpra/\d*/[^/]*/  ws://localhost
   ProxyPassReverse  /xpra/\d*/[^/]*/  ws://localhost
-      
+
   <Directory /var/www>
     WSGIProcessGroup cow
     WSGIApplicationGroup %{GLOBAL}
@@ -317,7 +317,7 @@ CoW is released under the MIT licence, see file `LICENCE` for more information.
 
 Third-party utilities are included in CoW for a more convenient installation, they are released under their own licences:
 
- - `static/jquery.min.js`: [jQuery](http://jquery.com)
- - `static/jqui/`: [jQuery UI](http://jqueryui.com)
- - `statis/cm/`: [CodeMirror](http://codemirror.net)
- - `xpra-html5`: [Xpra HTML5 client](http://github.com/Xpra-org/xpra-html5)
+- `static/jquery.min.js`: [jQuery](http://jquery.com)
+- `static/jqui/`: [jQuery UI](http://jqueryui.com)
+- `statis/cm/`: [CodeMirror](http://codemirror.net)
+- `xpra-html5`: [Xpra HTML5 client](http://github.com/Xpra-org/xpra-html5)
